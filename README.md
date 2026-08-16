@@ -7,13 +7,23 @@
 ![SwitLoader](./assets/docs/SwitLoader.png)
 ---
 # 2. Installation
+## Requirements
+
+> Python 3.13+
+> 
+> When running, Swit will automatically install the required dependencies.
+
 ```bash
 git clone -b release https://github.com/Notkenftr/SwitLoader.git
 cd SwitLoader
+
+Open config.yml, then set up the bot_token.
+
+```bash
+python start.py
 ```
 
-
-#📍 License
+# 📍 License
 MIT License
 
 Copyright (c) 2026 kenftr
