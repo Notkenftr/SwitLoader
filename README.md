@@ -16,6 +16,7 @@
 ```bash
 git clone -b release https://github.com/Notkenftr/SwitLoader.git
 cd SwitLoader
+```
 
 Open config.yml, then set up the bot_token.
 
