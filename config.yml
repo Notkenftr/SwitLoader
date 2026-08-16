@@ -1,0 +1,26 @@
+_version: 1.0
+
+Discord:
+  bot_token: ""
+  command_prefix: "!"
+  intents:
+    guilds: True
+    members: True
+    moderation: True
+    emojis_and_stickers: True
+    integrations: True
+    webhooks: True
+    invites: True
+    voice_states: True
+    presences: True
+    guild_messages: True
+    guild_reactions: True
+    guild_typing: True
+    message_content: True
+    guild_scheduled_events: True
+    auto_moderation_configuration: True
+    auto_moderation_execution: True
+    polls: True
+
+Logger:
+  debug: False

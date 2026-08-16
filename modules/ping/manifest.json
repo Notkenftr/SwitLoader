@@ -1,0 +1,14 @@
+{
+    "name": "ping",
+    "version": "1.0.0",
+    "description": "ping",
+    "author": "kenftr",
+    "entry": "module.Ping",
+    "api_version": "1",
+    "dependencies": [
+    ],
+    "permissions": [
+        "manage_messages",
+        "kick_members"
+    ]
+}

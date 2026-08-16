@@ -1,0 +1,12 @@
+[project]
+name = "switloader"
+version = "0.1.0"
+description = "Swit Loader"
+requires-python = ">=3.13"
+dependencies = [
+    "aiofiles>=25.1.0",
+    "colorama>=0.4.6",
+    "discord-py>=2.7.1",
+    "pyyaml>=6.0.3",
+    "rich>=15.0.0",
+]
