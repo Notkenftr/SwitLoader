@@ -1,9 +1,13 @@
 _version: 1.0
 
 Discord:
-  bot_token: ""
+  # setup bot
+  bot-token: ""
   command_prefix: "!"
   intents:
+    auto_detect: False
+    # Auto-detection only works when the module declares an intent.
+    # If you enable the auto-detect feature, you don't need to worry about the settings below.
     guilds: True
     members: True
     moderation: True
@@ -23,4 +27,4 @@ Discord:
     polls: True
 
 Logger:
-  debug: False
+  debug: True

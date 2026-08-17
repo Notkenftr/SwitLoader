@@ -64,7 +64,7 @@ async def main():
             "Discord config must be a mapping"
         )
 
-    bot_token = discord_config.get("bot_token")
+    bot_token = discord_config.get("bot-token")
 
     if not bot_token:
         raise ValueError(

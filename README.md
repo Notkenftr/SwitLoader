@@ -24,6 +24,8 @@ Open config.yml, then set up the bot_token.
 python start.py
 ```
 
+## Docs: https://swittlab.github.io/SwitLoader.docs/
+
 # 📍 License
 MIT License
 
