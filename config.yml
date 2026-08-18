@@ -26,5 +26,14 @@ Discord:
     auto_moderation_execution: True
     polls: True
 
+SwitPort:
+  # This feature can automatically build a discord.py Discord bot into a module, though it has a success rate of around 90%.
+  enable: False
+  using_token: ""
+
+  # Bot entry point declaration file
+  manifest: manifest.json
+  out: bot-module.json
+
 Logger:
-  debug: True
+  debug: False

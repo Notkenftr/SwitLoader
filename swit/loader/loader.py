@@ -38,12 +38,18 @@ def _load_spec(module_path: Path):
 
 
 class Loader:
-    __slots__ = ["swit","registry","module_path","loaded_modules","logger"]
+    __slots__ = ["swit",
+                 "registry",
+                 "module_path",
+                 "loaded_modules",
+                 "waiting_depend",
+                 "logger"]
     def __init__(self,swit):
         self.swit = swit
         self.logger = self.swit.get_logger()
         self.registry = Registry()
         self.loaded_modules = {}
+        self.waiting_depend = []
         self.swit.registry = self.registry
         self.module_path = PathAPI.join_path("modules")
         self.module_path.mkdir(parents=True, exist_ok=True)
@@ -51,43 +57,29 @@ class Loader:
     async def _load(self, module_path: Path):
         try:
             module = _load_spec(module_path)
-
             manifest: ModuleManifest | None = getattr(
                 module,
                 "Manifest",
                 None
             )
-
             if manifest is None:
                 return False
-
             entry = manifest.entry
-
             match manifest.module_type:
-
                 case ModuleType.PREFIX_COMMAND:
                     await self.swit.add_cog(entry(self.swit))
-
                 case ModuleType.SLASH_COMMAND:
                     await self.swit.add_cog(entry(self.swit))
-
                 case ModuleType.GROUP_COMMAND:
                     self.swit.add_command(entry(self.swit))
-
                 case ModuleType.LOOP_EVENT:
                     await self.swit.add_listener(entry(self.swit))
-
                 case ModuleType.CALL_SETUP_FUNC:
                     setup = getattr(module,"setup")
-
                     await setup(self.swit)
-
                 case _:
                     if entry:
-                        await self.swit.add_cog(
-                            entry(self.swit)
-                        )
-
+                        await self.swit.add_cog(entry(self.swit))
             self.registry.add(manifest.name,module)
             self.loaded_modules[manifest.name] = module
             return True
