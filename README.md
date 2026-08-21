@@ -6,6 +6,8 @@
 # 1. Loader
 ![SwitLoader](./assets/docs/SwitLoader.png)
 ---
+![prallel](./assets/docs/parallel.png)
+---
 # 2. Installation
 ## Requirements
 

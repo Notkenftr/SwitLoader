@@ -65,6 +65,10 @@ class Loader:
             if manifest is None:
                 return False
             entry = manifest.entry
+
+            if manifest.dependencies_package:
+                await self.logger.info(f"Loading dependency package: {manifest.dependencies_package}")
+
             match manifest.module_type:
                 case ModuleType.PREFIX_COMMAND:
                     await self.swit.add_cog(entry(self.swit))
