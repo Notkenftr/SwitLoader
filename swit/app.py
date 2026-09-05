@@ -1,18 +1,20 @@
 from __future__ import annotations
 
-import platform, inspect
+import inspect
+import platform
 import time
 
 import discord
 from discord.ext import commands
 
 from swit.api.logger import Logger
-from swit.loader.loader import Loader
 from swit.context import set_swit
+from swit.loader.loader import Loader
+
 
 class Swit(commands.AutoShardedBot):
+    __slots__ = ["discord_intents", "intents_config", "loader", "registry"]
 
-    __slots__ = ["intents_config","registry","loader","discord_intents"]
     def __init__(
         self,
         intents: dict[str, bool],
@@ -26,19 +28,17 @@ class Swit(commands.AutoShardedBot):
 
         self.discord_intents = self._setup_intents()
 
-        super().__init__(
-            intents=self.discord_intents,
-            command_prefix=command_prefix
-        )
+        super().__init__(intents=self.discord_intents, command_prefix=command_prefix)
         self.registry = None
         set_swit(self)
+
     async def on_ready(self):
         await self.logger.info(f"Logged in as {self.user} (ID: {self.user.id})")
-        await self.logger.info(f"Start sync slash commands")
+        await self.logger.info("Start sync slash commands")
         total_cog = await self.tree.sync()
-        await self.logger.success(f"Done sync slash commands")
+        await self.logger.success("Done sync slash commands")
         await self.logger.success(f"Total cogs: {len(total_cog)}")
-        await self.logger.success(f"Bot ready!")
+        await self.logger.success("Bot ready!")
 
     async def setup_hook(self) -> None:
         setup_step_hook = []
@@ -49,11 +49,11 @@ class Swit(commands.AutoShardedBot):
         await self.logger.info("Start Loader")
         start = time.time()
 
-        modules = await self.loader.start_loader(
-            setup_step_hook
+        modules = await self.loader.start_loader(setup_step_hook)
+        await self.logger.success(
+            f"Loadded: {len(modules)} after {round(time.time() - start, 3)} seconds"
         )
-        await self.logger.success(f"Loadded: {len(modules)} after {round(time.time() - start,3)} seconds")
-        await self.logger.info(f"Checking hooker")
+        await self.logger.info("Checking hooker")
         await self.logger.info(f"Found: {len(setup_step_hook)} hooks")
 
         # load hooker
@@ -70,7 +70,9 @@ class Swit(commands.AutoShardedBot):
             else:
                 await self.logger.error(f"{func.__name__} is not callable")
                 continue
-        await self.logger.info(f"Loadded: {len(setup_step_hook)} after {round(time.time() - start,3)} seconds")
+        await self.logger.info(
+            f"Loadded: {len(setup_step_hook)} after {round(time.time() - start, 3)} seconds"
+        )
 
     def get_logger(self):
         return self.logger
@@ -79,12 +81,10 @@ class Swit(commands.AutoShardedBot):
         intents = discord.Intents.default()
 
         for name, value in self.intents_config.items():
-            if name in ["auto_detect","all","default"]:
+            if name in ["auto_detect", "all", "default"]:
                 continue
             if not hasattr(intents, name):
-                raise ValueError(
-                    f"Invalid Discord intent: {name}"
-                )
-            setattr(intents,name,value)
+                raise ValueError(f"Invalid Discord intent: {name}")
+            setattr(intents, name, value)
 
         return intents

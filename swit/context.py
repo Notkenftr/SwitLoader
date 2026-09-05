@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 
 _swit: Swit | None = None
 
+
 def set_swit(instance: Swit) -> None:
     global _swit
 

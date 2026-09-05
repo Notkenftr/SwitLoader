@@ -1,5 +1,6 @@
 from enum import IntEnum
 
+
 class ModuleType(IntEnum):
     PREFIX_COMMAND = 0
     SLASH_COMMAND = 1

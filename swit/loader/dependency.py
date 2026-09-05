@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import asyncio
-import importlib.util
 import shutil
 import subprocess
 import sys
-
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -19,6 +17,7 @@ def get_package_manager() -> list[str]:
 
     return [sys.executable, "-m", "pip"]
 
+
 def package_exists(package: str) -> bool:
     command = [
         *get_package_manager(),
@@ -31,6 +30,7 @@ def package_exists(package: str) -> bool:
         stderr=subprocess.DEVNULL,
     )
     return result.returncode == 0
+
 
 async def install_dependency(package: str) -> bool:
     command = [
@@ -47,10 +47,7 @@ async def install_dependency(package: str) -> bool:
     if process.returncode != 0:
         error = stderr.decode(errors="replace")
 
-        raise RuntimeError(
-            f"Failed to install package '{package}':\n"
-            f"{error}"
-        )
+        raise RuntimeError(f"Failed to install package '{package}':\n{error}")
     return True
 
 
@@ -63,27 +60,16 @@ async def package_dependency(
         package = package.strip()
         if not package:
             continue
-        await loader.logger.info(
-            f"Checking dependency: {package}"
-        )
+        await loader.logger.info(f"Checking dependency: {package}")
 
         if package_exists(package):
-            await loader.logger.info(
-                f"Dependency {package} already installed"
-            )
+            await loader.logger.info(f"Dependency {package} already installed")
             continue
 
-        await loader.logger.info(
-            f"Package {package} not installed, installing..."
-        )
+        await loader.logger.info(f"Package {package} not installed, installing...")
         try:
             await install_dependency(package)
         except Exception as exc:
-            await loader.logger.error(
-                f"Failed to install dependency "
-                f"{package}: {exc}"
-            )
+            await loader.logger.error(f"Failed to install dependency {package}: {exc}")
             raise
-        await loader.logger.info(
-            f"Successfully installed {package}"
-        )
+        await loader.logger.info(f"Successfully installed {package}")

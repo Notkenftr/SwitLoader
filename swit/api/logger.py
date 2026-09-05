@@ -35,14 +35,13 @@ LEVEL_COLOR = {
 
 
 def get_now():
-    return datetime.now().strftime(
-        "%Y-%m-%d %H:%M:%S"
-    )
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 class Logger:
-
-    def __init__(self, debug: bool = False, custom_colors: dict[LoggerLevel, str] | None = None):
+    def __init__(
+        self, debug: bool = False, custom_colors: dict[LoggerLevel, str] | None = None
+    ):
         self.debug_mode = debug
         self.log_path = PathAPI.join_path("logs")
         os.makedirs(self.log_path, exist_ok=True)
@@ -66,11 +65,7 @@ class Logger:
                 return file_path
             counter += 1
 
-    async def _write(
-            self,
-            level: LoggerLevel,
-            message: str
-    ):
+    async def _write(self, level: LoggerLevel, message: str):
         timestamp = get_now()
         prefix = f"[{level.value}] [{timestamp}] "
         text = f"{prefix}{message}\n"
@@ -81,13 +76,12 @@ class Logger:
         elif level == LoggerLevel.SUCCESS:
             console.print(f"[{color}]{prefix}[/][bright_white]{message}[/]")
         else:
-            print(f"{color}{prefix}{Style.RESET_ALL}{Fore.LIGHTWHITE_EX}{message}{Style.RESET_ALL}\n", end="")
+            print(
+                f"{color}{prefix}{Style.RESET_ALL}{Fore.LIGHTWHITE_EX}{message}{Style.RESET_ALL}\n",
+                end="",
+            )
 
-        async with aiofiles.open(
-                self.log_file,
-                "a",
-                encoding="utf-8"
-        ) as file:
+        async with aiofiles.open(self.log_file, "a", encoding="utf-8") as file:
             await file.write(text)
 
     async def log(self, level: LoggerLevel, message: str):

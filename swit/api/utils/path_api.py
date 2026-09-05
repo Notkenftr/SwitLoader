@@ -10,4 +10,4 @@ class PathAPI:
 
     @staticmethod
     def join_path(*args) -> Path:
-        return Path(root,*args)
+        return Path(root, *args)

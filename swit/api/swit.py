@@ -1,6 +1,6 @@
 from swit.app import Swit
-
 from swit.context import get_swit
+
 
 def get_swit_instance() -> Swit:
     """

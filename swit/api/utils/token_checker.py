@@ -13,23 +13,22 @@ async def token_checker(discord_bot_token):
     :return: (status,data)
     """
 
-    headers = {
-        "Authorization": f"Bot {discord_bot_token}"
-    }
+    headers = {"Authorization": f"Bot {discord_bot_token}"}
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(
-            "https://discord.com/api/v10/users/@me",
-            headers=headers
-        ) as response:
-            if response.status == 200:
-                data = await response.json()
-                return True, data
+    async with (
+        aiohttp.ClientSession() as session,
+        session.get(
+            "https://discord.com/api/v10/users/@me", headers=headers
+        ) as response,
+    ):
+        if response.status == 200:
+            data = await response.json()
+            return True, data
 
-            if response.status == 401:
-                return False, "Invalid token"
+        if response.status == 401:
+            return False, "Invalid token"
 
-            if response.status == 429:
-                return False, "Rate limited"
+        if response.status == 429:
+            return False, "Rate limited"
 
-            return False, f"HTTP {response.status}"
+        return False, f"HTTP {response.status}"

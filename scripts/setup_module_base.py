@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 root = Path(__file__).parents[1]
 
 base = """from __future__ import annotations
@@ -37,26 +36,28 @@ Manifest = ModuleManifest(
 )
 """
 
+
 def main():
     module_name = str(input("Enter your module name: "))
 
-    module_path = Path(root,"modules",module_name)
+    module_path = Path(root, "modules", module_name)
     module_path.mkdir(parents=True, exist_ok=True)
 
     module_entry_file = module_path / "module.txt"
     module_entry_file.touch(exist_ok=True)
 
-    with open(module_entry_file,"w") as f:
+    with open(module_entry_file, "w") as f:
         f.write(
             base.format(
-                module_class_name = (module_name
-                                    .replace("-","")
-                                    .replace(" ","")
-                                    .lower()
-                                     ).strip().capitalize(),
-                module_name = module_name,
+                module_class_name=(
+                    module_name.replace("-", "").replace(" ", "").lower()
+                )
+                .strip()
+                .capitalize(),
+                module_name=module_name,
             )
         )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

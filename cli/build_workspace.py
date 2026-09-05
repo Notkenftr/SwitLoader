@@ -1,11 +1,10 @@
 from pathlib import Path
 
-
 root = Path(__file__).parents[1]
 
 
 TEMPLATES = {
-"PREFIX_COMMAND": """from __future__ import annotations
+    "PREFIX_COMMAND": """from __future__ import annotations
 
 import discord
 from discord.ext import commands
@@ -34,7 +33,6 @@ Manifest = ModuleManifest(
     dependencies_module=[]
 )
 """,
-
     "SLASH_COMMAND": """from __future__ import annotations
 
 import discord
@@ -70,7 +68,6 @@ Manifest = ModuleManifest(
     dependencies_module=[]
 )
 """,
-
     "GROUP_COMMAND": """from __future__ import annotations
 
 import discord
@@ -110,7 +107,6 @@ Manifest = ModuleManifest(
     dependencies_module=[]
 )
 """,
-
     "LOOP_EVENT": """from __future__ import annotations
 
 from discord.ext import commands, tasks
@@ -146,7 +142,6 @@ Manifest = ModuleManifest(
     dependencies_module=[]
 )
 """,
-
     "CALL_SETUP_FUNC": """from __future__ import annotations
 
 from swit.app import Swit
@@ -168,7 +163,7 @@ Manifest = ModuleManifest(
     dependencies_module=[]
 )
 """,
-"COG": """from __future__ import annotations
+    "COG": """from __future__ import annotations
 
 from discord.ext import commands
 
@@ -192,8 +187,7 @@ Manifest = ModuleManifest(
     dependencies_module=[]
 )
 """,
-
-"EVENT": """from __future__ import annotations
+    "EVENT": """from __future__ import annotations
 
 import discord
 from discord.ext import commands
@@ -222,8 +216,7 @@ Manifest = ModuleManifest(
     dependencies_module=[]
 )
 """,
-
-"HOOK": """from __future__ import annotations
+    "HOOK": """from __future__ import annotations
 
 from swit.app import Swit
 from swit.api import ModuleManifest, ModuleType
@@ -251,8 +244,7 @@ MODULE_TYPES = tuple(TEMPLATES)
 
 def get_class_name(module_name: str) -> str:
     return "".join(
-        part.capitalize()
-        for part in module_name.replace("-", "_").split("_")
+        part.capitalize() for part in module_name.replace("-", "_").split("_")
     )
 
 
@@ -292,10 +284,7 @@ def build_workspace():
         print(f"{index}. {module_type}")
 
     print()
-    print(
-        "Documentation: "
-        "https://swittlab.github.io/SwitLoader.docs/module_type/"
-    )
+    print("Documentation: https://swittlab.github.io/SwitLoader.docs/module_type/")
     print()
 
     try:
@@ -317,5 +306,3 @@ def build_workspace():
     print(f"Type:   {module_type}")
     print(f"Path:   {module_path}")
     print(f"File:   {module_path / 'module.py'}")
-
-

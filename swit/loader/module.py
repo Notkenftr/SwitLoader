@@ -1,5 +1,13 @@
 class Module:
-    __slots__ = ["name","description","entry","depend","author","require_permission"]
+    __slots__ = [
+        "author",
+        "depend",
+        "description",
+        "entry",
+        "name",
+        "require_permission",
+    ]
+
     def __init__(self):
         self.name = None
         self.description = None
