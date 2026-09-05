@@ -33,7 +33,7 @@ def load_config() -> dict:
         config = yaml.safe_load(file)
 
     if not isinstance(config, dict):
-        raise ValueError("config.yml must contain a YAML object")
+        raise TypeError("config.yml must contain a YAML object")
 
     return config
 
@@ -42,7 +42,7 @@ async def main():
     ensure_dependencies()
     depend_handler()
 
-    if sys.version_info < (3, 13):
+    if sys.version_info < (3, 13): # noqa: UP036
         raise RuntimeError(
             f"Python 3.13+ is required. Current version: {sys.version.split()[0]}"
         )
@@ -52,7 +52,7 @@ async def main():
     discord_config = config.get("Discord", {})
 
     if not isinstance(discord_config, dict):
-        raise ValueError("Discord config must be a mapping")
+        raise TypeError("Discord config must be a mapping")
 
     bot_token = discord_config.get("bot-token")
 

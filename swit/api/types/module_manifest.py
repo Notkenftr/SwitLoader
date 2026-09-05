@@ -19,9 +19,9 @@ class ModuleManifest:
         module_type: ModuleType,
         name: str,
         description: str,
-        author: list[str] = None,
-        dependencies_package: list[str] = None,
-        dependencies_module: list[str] = None,
+        author: list[str] | None = None,
+        dependencies_package: list[str] | None = None,
+        dependencies_module: list[str] | None = None,
     ):
 
         self.entry = entry

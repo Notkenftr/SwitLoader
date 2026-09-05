@@ -10,7 +10,7 @@ async def object_information(obj, swit: Swit):
     for name in dir(obj):
         try:
             await logger.info(f"{name}: {getattr(obj, name)}")
-        except Exception as e:
+        except Exception as e: # noqa: BLE001
             await logger.info(f"{name}: <error: {e}>")
 
     await logger.info(f"{'==' * 15} End {'==' * 15}")

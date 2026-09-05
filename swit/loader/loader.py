@@ -98,7 +98,7 @@ class Loader:
             self.loaded_modules[manifest.name] = module
             return True
 
-        except Exception as e:
+        except Exception as e: # noqa: BLE001
             await self.logger.warning(f"Failed to load module: {module_path}")
             traceback.print_exc()
             await self.logger.warning(f"Info: {e}")

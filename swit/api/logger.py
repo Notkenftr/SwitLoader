@@ -35,7 +35,7 @@ LEVEL_COLOR = {
 
 
 def get_now():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S")
 
 
 class Logger:
@@ -50,7 +50,7 @@ class Logger:
         self.colors = {**LEVEL_COLOR, **(custom_colors or {})}
 
     def get_log_name(self):
-        date = datetime.now().strftime("%Y-%m-%d")
+        date = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S")
         base_name = f"{date}.log"
         file_path = os.path.join(self.log_path, base_name)
 

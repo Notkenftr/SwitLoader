@@ -28,6 +28,7 @@ def package_exists(package: str) -> bool:
         command,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
+        check=False,
     )
     return result.returncode == 0
 
@@ -43,7 +44,7 @@ async def install_dependency(package: str) -> bool:
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
-    stdout, stderr = await process.communicate()
+    _, stderr = await process.communicate()
     if process.returncode != 0:
         error = stderr.decode(errors="replace")
 
