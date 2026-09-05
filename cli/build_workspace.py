@@ -5,8 +5,7 @@ root = Path(__file__).parents[1]
 
 
 TEMPLATES = {
-
-    "PREFIX_COMMAND": """from __future__ import annotations
+"PREFIX_COMMAND": """from __future__ import annotations
 
 import discord
 from discord.ext import commands
@@ -169,6 +168,81 @@ Manifest = ModuleManifest(
     dependencies_module=[]
 )
 """,
+"COG": """from __future__ import annotations
+
+from discord.ext import commands
+
+from swit.app import Swit
+from swit.api import ModuleManifest, ModuleType
+
+
+class {module_class_name}(commands.Cog):
+
+    def __init__(self, bot: Swit):
+        self.bot = bot
+
+
+Manifest = ModuleManifest(
+    entry={module_class_name},
+    module_type=ModuleType.COG,
+    name="{module_name}",
+    description="",
+    author=[],
+    dependencies_package=[],
+    dependencies_module=[]
+)
+""",
+
+"EVENT": """from __future__ import annotations
+
+import discord
+from discord.ext import commands
+
+from swit.app import Swit
+from swit.api import ModuleManifest, ModuleType
+
+
+class {module_class_name}(commands.Cog):
+
+    def __init__(self, bot: Swit):
+        self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        pass
+
+
+Manifest = ModuleManifest(
+    entry={module_class_name},
+    module_type=ModuleType.EVENT,
+    name="{module_name}",
+    description="",
+    author=[],
+    dependencies_package=[],
+    dependencies_module=[]
+)
+""",
+
+"HOOK": """from __future__ import annotations
+
+from swit.app import Swit
+from swit.api import ModuleManifest, ModuleType
+
+
+async def hooker(bot: Swit):
+    pass
+
+
+Manifest = ModuleManifest(
+    entry=hooker,
+    module_type=ModuleType.HOOK_TO_SETUP_STEP,
+    name="{module_name}",
+    description="",
+    author=[],
+    dependencies_package=[],
+    dependencies_module=[]
+)
+""",
 }
 
 
@@ -178,7 +252,7 @@ MODULE_TYPES = tuple(TEMPLATES)
 def get_class_name(module_name: str) -> str:
     return "".join(
         part.capitalize()
-        for part in module_name.replace("-", " ").split()
+        for part in module_name.replace("-", "_").split("_")
     )
 
 

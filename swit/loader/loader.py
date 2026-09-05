@@ -8,6 +8,7 @@ from pathlib import Path
 
 from swit.api.enums.module_type import ModuleType
 from swit.api.types.module_manifest import ModuleManifest
+from swit.loader.dependency import package_dependency
 # local
 from swit.loader.registry import Registry
 
@@ -54,7 +55,7 @@ class Loader:
         self.module_path = PathAPI.join_path("modules")
         self.module_path.mkdir(parents=True, exist_ok=True)
 
-    async def _load(self, module_path: Path):
+    async def _load(self, module_path: Path,setup_step_hook_array: list):
         try:
             module = _load_spec(module_path)
             manifest: ModuleManifest | None = getattr(
@@ -68,16 +69,26 @@ class Loader:
 
             if manifest.dependencies_package:
                 await self.logger.info(f"Loading dependency package: {manifest.dependencies_package}")
+                await package_dependency(self,manifest)
 
             match manifest.module_type:
                 case ModuleType.PREFIX_COMMAND:
                     await self.swit.add_cog(entry(self.swit))
                 case ModuleType.SLASH_COMMAND:
                     await self.swit.add_cog(entry(self.swit))
+                case ModuleType.EVENT:
+                    await self.swit.add_cog(entry(self.swit))
+                case ModuleType.COG:
+                    await self.swit.add_cog(entry(self.swit))
                 case ModuleType.GROUP_COMMAND:
-                    self.swit.add_command(entry(self.swit))
+                    self.swit.tree.add_command(entry(self.swit))
                 case ModuleType.LOOP_EVENT:
                     await self.swit.add_listener(entry(self.swit))
+
+                case ModuleType.HOOK_TO_SETUP_STEP:
+                    for name in ("hooker", "hook", "entry"):
+                        value = getattr(module, name, None)
+                        setup_step_hook_array.append(value)
                 case ModuleType.CALL_SETUP_FUNC:
                     setup = getattr(module,"setup")
                     await setup(self.swit)
@@ -93,19 +104,18 @@ class Loader:
             await self.logger.warning(f"Failed to load module: {module_path}")
             return False
 
-    async def start_loader(self):
+    async def start_loader(self,setup_step_hook_array):
         modules = [
             path
             for path in self.module_path.iterdir() if (path.is_dir()and (path / "module.py").exists())
         ]
         result = await asyncio.gather(
             *(
-                self._load(module)
+                self._load(module,setup_step_hook_array)
                 for module in modules
             )
         )
         await self.logger.success(f"Loaded {sum(result)}/{len(modules)} modules")
-
         return modules
 
 

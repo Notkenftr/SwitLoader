@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import platform
+import platform, inspect
 import time
 
 import discord
@@ -38,16 +38,39 @@ class Swit(commands.AutoShardedBot):
         total_cog = await self.tree.sync()
         await self.logger.success(f"Done sync slash commands")
         await self.logger.success(f"Total cogs: {len(total_cog)}")
+        await self.logger.success(f"Bot ready!")
 
     async def setup_hook(self) -> None:
+        setup_step_hook = []
         await self.logger.info("Start Swit")
         await self.logger.info(f"Running on {platform.python_version()}..")
         await self.logger.debug(f"Loadded {len(self.intents_config)} intents")
         await self.logger.debug(f"{self.intents_config}")
         await self.logger.info("Start Loader")
         start = time.time()
-        modules = await self.loader.start_loader()
+
+        modules = await self.loader.start_loader(
+            setup_step_hook
+        )
         await self.logger.success(f"Loadded: {len(modules)} after {round(time.time() - start,3)} seconds")
+        await self.logger.info(f"Checking hooker")
+        await self.logger.info(f"Found: {len(setup_step_hook)} hooks")
+
+        # load hooker
+        for func in setup_step_hook:
+            if callable(func):
+                await self.logger.debug(f"Running {func.__name__}")
+                try:
+                    if inspect.iscoroutinefunction(func):
+                        await func(self)
+                    else:
+                        func(self)
+                except Exception as e:
+                    await self.logger.error(e)
+            else:
+                await self.logger.error(f"{func.__name__} is not callable")
+                continue
+        await self.logger.info(f"Loadded: {len(setup_step_hook)} after {round(time.time() - start,3)} seconds")
 
     def get_logger(self):
         return self.logger

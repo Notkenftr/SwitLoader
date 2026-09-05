@@ -1,9 +1,14 @@
-_version: 1.0
+_version: 1.5
 
 Discord:
   # setup bot
   bot-token: ""
   command_prefix: "!"
+
+  auto_sharded:
+    enable: True
+    shard_count: auto
+
   intents:
     auto_detect: False
     # Auto-detection only works when the module declares an intent.
@@ -26,14 +31,60 @@ Discord:
     auto_moderation_execution: True
     polls: True
 
-SwitPort:
-  # This feature can automatically build a discord.py Discord bot into a module, though it has a success rate of around 90%.
-  enable: False
-  using_token: ""
+Package:
+  using_unrelease_discordpy_version:
+    enable: False
+    url: https://github.com/Rapptz/discord.py
 
-  # Bot entry point declaration file
-  manifest: manifest.json
-  out: bot-module.json
+#SwitPort:
+#  # This feature can automatically build a discord.py Discord bot into a module,
+#  # though it has a success rate of around 90%.
+#  enable: False
+#  using_token: ""
+#
+#  # Bot entry point declaration file
+#  manifest: manifest.json
+#  out: bot-module.json
+#
+
+SwitLoader:
+
+  # Load multiple modules concurrently.
+  parallel_load: True
+  # Maximum number of modules loaded concurrently.
+  max_concurrency: 32
+
+  patches:
+    enable: False
+    patches_dir: "{root}/patches"
+
+  # Use Python free-threaded build.
+  using_free_thread: False
+  runtime:
+    python:
+      version: "3.14"
+      fallback: True
+    windows:
+      win32: https://www.python.org/ftp/python/3.14.6/python-3.14.6t-win32.zip
+      amd64: https://www.python.org/ftp/python/3.14.6/python-3.14.6t-amd64.zip
+      arm64: https://www.python.org/ftp/python/3.14.6/python-3.14.6t-arm64.zip
+    linux:
+      provider: uv
+      install_command: |
+        UV_PYTHON_INSTALL_DIR="{runtime/python}" uv python install 3.14t
+
+  pipeline: "p>m>s"
+  error:
+    continue_on_error: True
+
+    max_retries: 3
+
+
+Modules:
+  directory: "{root}/modules"
+  auto_load: True
+
 
 Logger:
+  level: INFO
   debug: False
