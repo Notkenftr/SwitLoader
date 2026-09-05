@@ -1,0 +1,60 @@
+name: syntax_check.yml
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  syntax_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
+      - name: Check all YAML syntax in configs/
+        run: |
+          python -c "
+          import os, sys, yaml
+          
+          config_dir = './configs'
+          has_error = False
+          
+          if not os.path.exists(config_dir):
+              print(f'ERROR: Directory {config_dir} does not exist.')
+              sys.exit(1)
+              
+          for root, dirs, files in os.walk(config_dir):
+              for file in files:
+                  if file.endswith(('.yml', '.yaml')):
+                      file_path = os.path.join(root, file)
+                      try:
+                          with open(file_path, 'r', encoding='utf-8') as f:
+                              yaml.safe_load(f)
+                      except Exception as e:
+                          print(f'SYNTAX ERROR in {file_path}: {e}')
+                          has_error = True
+                          
+          if has_error:
+              sys.exit(1)
+          else:
+              print('All YAML files are valid.')
+          "
+
+      - name: Check all Python syntax in repo
+        run: |
+          python -m compileall -q .
+      - name: ruff check
+        run: |
+          pip install ruff
+          ruff check .
