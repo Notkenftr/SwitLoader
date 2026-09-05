@@ -15,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.13'
 
       - name: Install Dependencies
         run: |
@@ -27,7 +27,7 @@ jobs:
           python -c "
           import os, sys, yaml
           
-          config_dir = './configs'
+          config_dir = './'
           has_error = False
           
           if not os.path.exists(config_dir):
