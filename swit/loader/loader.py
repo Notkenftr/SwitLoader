@@ -59,6 +59,7 @@ class Loader:
     async def _load(self, module_path: Path, setup_step_hook_array: list):
         try:
             module = _load_spec(module_path)
+            await self.logger.info(f"Loading: {module.__name__}")
             manifest: ModuleManifest | None = getattr(module, "Manifest", None)
             if manifest is None:
                 return False

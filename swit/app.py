@@ -71,7 +71,7 @@ class Swit(commands.AutoShardedBot):
                 await self.logger.error(f"{func.__name__} is not callable")
                 continue
         await self.logger.info(
-            f"Loadded: {len(setup_step_hook)} after {round(time.time() - start, 3)} seconds"
+            f"Loadded: {len(setup_step_hook)} hook after {round(time.time() - start, 3)} seconds"
         )
 
     def get_logger(self):
