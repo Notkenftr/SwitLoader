@@ -2,7 +2,9 @@ import json
 import os
 import sys
 import subprocess
+import tarfile
 import zipfile
+import zlib
 from pathlib import Path
 import importlib.metadata
 
@@ -107,20 +109,44 @@ def archive_project():
     build_dir = root_dir / "build"
     build_dir.mkdir(parents=True, exist_ok=True)
 
-    pack_file = build_dir / "swit-pack.zlib"
     ignore_dirs = {".git", ".idea", "__pycache__", "build"}
 
-    with zipfile.ZipFile(pack_file, "w", zipfile.ZIP_DEFLATED) as zipf:
-        for file_path in root_dir.rglob("*"):
-            if file_path == pack_file:
-                continue
+    files_to_pack = []
+    for file_path in root_dir.rglob("*"):
+        rel_path = file_path.relative_to(root_dir)
+        if any(part in ignore_dirs for part in rel_path.parts):
+            continue
+        if file_path.is_file():
+            files_to_pack.append((file_path, rel_path))
 
-            rel_path = file_path.relative_to(root_dir)
-            if any(part in ignore_dirs for part in rel_path.parts):
-                continue
+    zip_file = build_dir / "swit-pack.zip"
+    with zipfile.ZipFile(zip_file, "w", zipfile.ZIP_DEFLATED) as zipf:
+        for file_path, rel_path in files_to_pack:
+            zipf.write(file_path, rel_path)
 
-            if file_path.is_file():
-                zipf.write(file_path, rel_path)
+    tar_path = build_dir / "temp.tar"
+    zlib_file = build_dir / "swit-pack.tar.zlib"
+
+    with tarfile.open(tar_path, "w") as tar:
+        for file_path, rel_path in files_to_pack:
+            tar.add(file_path, arcname=rel_path)
+
+    with open(tar_path, "rb") as f_in, open(zlib_file, "wb") as f_out:
+        f_out.write(zlib.compress(f_in.read()))
+
+    tar_path.unlink()
+
+    rar_file = build_dir / "swit-pack.rar"
+    rar_cmd = "rar" if sys.platform != "win32" else "rar.exe"
+
+    try:
+        cmd = [
+            rar_cmd, "a", "-r", str(rar_file),
+            *[str(f[0]) for f in files_to_pack]
+        ]
+        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        pass
 
 
 def make_pack():
