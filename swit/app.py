@@ -50,9 +50,13 @@ class Swit(commands.AutoShardedBot):
         start = time.time()
 
         modules = await self.loader.start_loader(setup_step_hook)
+
+        module_count = len(modules)
+
         await self.logger.success(
-            f"Loadded: {len(modules)} after {round(time.time() - start, 3)} seconds"
+            f"Loadded: {module_count} {"modules" if module_count > 0 else "module"} after {round(time.time() - start, 3)} seconds"
         )
+
         await self.logger.info("Checking hooker")
         await self.logger.info(f"Found: {len(setup_step_hook)} hooks")
 
