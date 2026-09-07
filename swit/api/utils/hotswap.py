@@ -1,6 +1,5 @@
 import importlib
 
-
 def hotswap_function(func):
     if callable(func):
         module = importlib.import_module(func.__module__)

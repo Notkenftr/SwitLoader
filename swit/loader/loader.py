@@ -8,11 +8,9 @@ from pathlib import Path
 
 from swit.api.enums.module_type import ModuleType
 from swit.api.types.module_manifest import ModuleManifest
-
 # api
 from swit.api.utils.path_api import PathAPI
 from swit.loader.dependency import package_dependency
-
 # local
 from swit.loader.registry import Registry
 
@@ -99,7 +97,7 @@ class Loader:
             self.loaded_modules[manifest.name] = module
             return True
 
-        except Exception as e: # noqa: BLE001
+        except Exception as e:  # noqa: BLE001
             await self.logger.warning(f"Failed to load module: {module_path}")
             traceback.print_exc()
             await self.logger.warning(f"Info: {e}")

@@ -42,7 +42,7 @@ async def main():
     ensure_dependencies()
     depend_handler()
 
-    if sys.version_info < (3, 13): # noqa: UP036
+    if sys.version_info < (3, 13):  # noqa: UP036
         raise RuntimeError(
             f"Python 3.13+ is required. Current version: {sys.version.split()[0]}"
         )

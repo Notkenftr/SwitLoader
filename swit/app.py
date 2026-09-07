@@ -65,7 +65,7 @@ class Swit(commands.AutoShardedBot):
                         await func(self)
                     else:
                         func(self)
-                except Exception as e: # noqa: BLE001
+                except Exception as e:  # noqa: BLE001
                     await self.logger.error(e)
             else:
                 await self.logger.error(f"{func.__name__} is not callable")
@@ -88,3 +88,4 @@ class Swit(commands.AutoShardedBot):
             setattr(intents, name, value)
 
         return intents
+
