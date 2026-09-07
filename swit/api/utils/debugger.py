@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from swit.app import Swit
 
 
-async def object_information(obj, swit: "Swit"): # noqa: UP037
+async def object_information(obj, swit: "Swit"):  # noqa: UP037
     """
     Display information about an object for testing and debugging purposes.
 
@@ -73,8 +73,8 @@ if __name__ == "__main__":
 
     @function_debug
     def main():
-        a = 1 # noqa: F841
-        b = 2 # noqa: F841
-        c = 3 # noqa: F841
+        a = 1  # noqa: F841
+        b = 2  # noqa: F841
+        c = 3  # noqa: F841
 
     main()

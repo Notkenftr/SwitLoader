@@ -54,7 +54,7 @@ class Swit(commands.AutoShardedBot):
         module_count = len(modules)
 
         await self.logger.success(
-            f"Loadded: {module_count} {"modules" if module_count > 0 else "module"} after {round(time.time() - start, 3)} seconds"
+            f"Loadded: {module_count} {'modules' if module_count > 0 else 'module'} after {round(time.time() - start, 3)} seconds"
         )
 
         await self.logger.info("Checking hooker")
@@ -92,4 +92,3 @@ class Swit(commands.AutoShardedBot):
             setattr(intents, name, value)
 
         return intents
-

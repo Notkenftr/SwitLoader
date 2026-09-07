@@ -8,9 +8,11 @@ from pathlib import Path
 
 from swit.api.enums.module_type import ModuleType
 from swit.api.types.module_manifest import ModuleManifest
+
 # api
 from swit.api.utils.path_api import PathAPI
 from swit.loader.dependency import package_dependency
+
 # local
 from swit.loader.registry import Registry
 

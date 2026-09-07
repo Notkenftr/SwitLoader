@@ -10,6 +10,6 @@ __all__ = [
     "ModuleType",
     "PathAPI",
     "get_swit_instance",
-    "install_package",
     "hotswap_function",
+    "install_package",
 ]

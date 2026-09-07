@@ -1,12 +1,12 @@
-import json
+import importlib.metadata
+import importlib.util
 import os
-import sys
 import subprocess
+import sys
 import tarfile
 import zipfile
 import zlib
 from pathlib import Path
-import importlib.metadata
 
 START_PACK_FILE = """import os
 import sys
@@ -69,11 +69,11 @@ def setup_venv():
 
 
 def ensure_pip():
-    try:
-        import pip
-    except ImportError:
-        subprocess.run([sys.executable, "-m", "ensurepip", "--upgrade"], check=True)
-
+    if importlib.util.find_spec("pip") is None:
+        subprocess.run(
+            [sys.executable, "-m", "ensurepip", "--upgrade"],
+            check=True,
+        )
 
 def get_package():
     result = {}
@@ -100,8 +100,7 @@ def create_root_files(packages_dict: dict):
 
     req_file_path = root_dir / "requirements.txt"
     with open(req_file_path, "w", encoding="utf-8") as f:
-        for pkg_spec in packages_dict.values():
-            f.write(f"{pkg_spec}\n")
+        f.writelines(f"{pkg_spec}\n" for pkg_spec in packages_dict.values())
 
 
 def archive_project():
@@ -140,11 +139,10 @@ def archive_project():
     rar_cmd = "rar" if sys.platform != "win32" else "rar.exe"
 
     try:
-        cmd = [
-            rar_cmd, "a", "-r", str(rar_file),
-            *[str(f[0]) for f in files_to_pack]
-        ]
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        cmd = [rar_cmd, "a", "-r", str(rar_file), *[str(f[0]) for f in files_to_pack]]
+        subprocess.run(
+            cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
     except (FileNotFoundError, subprocess.CalledProcessError):
         pass
 
