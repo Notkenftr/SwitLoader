@@ -107,7 +107,7 @@ def archive_project():
     build_dir = root_dir / "build"
     build_dir.mkdir(parents=True, exist_ok=True)
 
-    pack_file = build_dir / "swit-pack.pack"
+    pack_file = build_dir / "swit-pack.zlib"
     ignore_dirs = {".git", ".idea", "__pycache__", "build"}
 
     with zipfile.ZipFile(pack_file, "w", zipfile.ZIP_DEFLATED) as zipf:
