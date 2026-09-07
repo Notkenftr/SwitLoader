@@ -66,6 +66,13 @@ def setup_venv():
         os.execv(str(venv_python), [str(venv_python)] + sys.argv)
 
 
+def ensure_pip():
+    try:
+        import pip
+    except ImportError:
+        subprocess.run([sys.executable, "-m", "ensurepip", "--upgrade"], check=True)
+
+
 def get_package():
     result = {}
     dists = importlib.metadata.distributions()
@@ -75,6 +82,7 @@ def get_package():
 
 
 def install_packages(packages_dict: dict):
+    ensure_pip()
     pkg_list = list(packages_dict.values())
     if not pkg_list:
         return
