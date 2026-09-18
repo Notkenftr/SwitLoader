@@ -3,7 +3,6 @@ import shutil
 import subprocess
 from pathlib import Path
 
-
 swit_repo = "https://github.com/Notkenftr/SwitLoader"
 
 

@@ -7,10 +7,10 @@ class ModuleManifest:
         "dependencies_module",
         "dependencies_package",
         "description",
+        "disable",
         "entry",
         "module_type",
         "name",
-        "disable"
     ]
 
     def __init__(
@@ -23,7 +23,7 @@ class ModuleManifest:
         author: list[str] | None = None,
         dependencies_package: list[str] | None = None,
         dependencies_module: list[str] | None = None,
-        disable: bool = False
+        disable: bool = False,
     ):
 
         self.entry = entry

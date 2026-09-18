@@ -1,7 +1,6 @@
 import discord
 from discord.app_commands import Command
 
-
 _original_do_call = Command._do_call
 
 

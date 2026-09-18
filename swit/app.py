@@ -47,16 +47,18 @@ class Swit(commands.AutoShardedBot):
         total_cog = await self.tree.sync()
         await self.logger.success("Done sync slash commands")
         await self.logger.success(f"Total cogs: {len(total_cog)}")
-        await self.logger.success(f"Total slash commands: {len(self.tree.get_commands())}")
+        await self.logger.success(
+            f"Total slash commands: {len(self.tree.get_commands())}"
+        )
 
         slash_commands = self.tree.get_commands()
 
-        await self.logger.info(f"command map")
+        await self.logger.info("command map")
         for command in slash_commands:
-            await self.logger.info(f"/{command}")
-            if isinstance(command,commands.Group):
+            await self.logger.info(f"/{command.name}")
+            if isinstance(command, commands.Group):
                 for subcommand in command.commands:
-                    await self.logger.info(f"- /{subcommand}")
+                    await self.logger.info(f"- /{subcommand.name}")
         await self.logger.success("Bot ready!")
 
     async def setup_hook(self) -> None:
@@ -100,12 +102,14 @@ class Swit(commands.AutoShardedBot):
 
     # build in event
     async def on_error(self, event: str, *args, **kwargs):
-        await self.logger.error(f"Error infomation:\n"
-                                f"- Event: {event}\n"
-                                f"- Args: {args}\n"
-                                f"- Kwargs: {kwargs}\n"
-                                f"- Traceback:"
-                                f"- {traceback.format_exc()}")
+        await self.logger.error(
+            f"Error infomation:\n"
+            f"- Event: {event}\n"
+            f"- Args: {args}\n"
+            f"- Kwargs: {kwargs}\n"
+            f"- Traceback:"
+            f"- {traceback.format_exc()}"
+        )
 
     # getter
 

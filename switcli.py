@@ -22,5 +22,6 @@ def main():
     if args.update:
         update_swit()
 
+
 if __name__ == "__main__":
     main()

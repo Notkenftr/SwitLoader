@@ -249,7 +249,7 @@ def get_class_name(module_name: str) -> str:
 
 
 def create_workspace(module_name: str, module_type: str):
-    externals_path = ["views","utils","logic","services"]
+    externals_path = ["views", "utils", "logic", "services"]
 
     module_path = Path(root, "modules", module_name)
     module_path.mkdir(parents=True, exist_ok=True)

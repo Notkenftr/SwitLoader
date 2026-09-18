@@ -75,6 +75,7 @@ def ensure_pip():
             check=True,
         )
 
+
 def get_package():
     result = {}
     dists = importlib.metadata.distributions()
