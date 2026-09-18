@@ -3,10 +3,12 @@ from __future__ import annotations
 import inspect
 import platform
 import time
+import traceback
 
 import discord
 from discord.ext import commands
 
+from patches.slash_command_try_catch import install_slash_command_try_catch_patch
 from swit.api.logger import Logger
 from swit.build_in.get_version import get_swit_version
 from swit.context import set_swit
@@ -34,6 +36,9 @@ class Swit(commands.AutoShardedBot):
         super().__init__(intents=self.discord_intents, command_prefix=command_prefix)
         self.registry = None
         set_swit(self)
+
+        self.logger.info("Setup patches")
+        install_slash_command_try_catch_patch(self)
 
     async def on_ready(self):
         await self.logger.info(f"Logged in as {self.user} (ID: {self.user.id})")
@@ -91,6 +96,15 @@ class Swit(commands.AutoShardedBot):
         await self.logger.info(
             f"Loadded: {len(setup_step_hook)} hook after {round(time.time() - start, 3)} seconds"
         )
+
+    # build in event
+    async def on_error(self, event: str, *args, **kwargs):
+        await self.logger.error(f"Error infomation:\n"
+                                f"- Event: {event}\n"
+                                f"- Args: {args}\n"
+                                f"- Kwargs: {kwargs}\n"
+                                f"- Traceback:"
+                                f"- {traceback.format_exc()}")
 
     # getter
 
