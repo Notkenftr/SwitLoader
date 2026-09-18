@@ -249,8 +249,18 @@ def get_class_name(module_name: str) -> str:
 
 
 def create_workspace(module_name: str, module_type: str):
+    externals_path = ["views","utils","logic","services"]
+
     module_path = Path(root, "modules", module_name)
     module_path.mkdir(parents=True, exist_ok=True)
+
+    for external_path in externals_path:
+        path = Path(module_path, external_path)
+        if "." not in external_path:
+            path.mkdir(exist_ok=True, parents=True)
+        else:
+            path.parent.mkdir(exist_ok=True, parents=True)
+            path.touch(exist_ok=True)
 
     module_file = module_path / "module.py"
 
