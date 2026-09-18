@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import inspect
 import platform
 import time
@@ -37,7 +38,7 @@ class Swit(commands.AutoShardedBot):
         self.registry = None
         set_swit(self)
 
-        self.logger.info("Setup patches")
+        asyncio.run(self.logger.info("Setup patches"))
         install_slash_command_try_catch_patch(self)
 
     async def on_ready(self):

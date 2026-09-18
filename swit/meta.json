@@ -1,3 +1,10 @@
 {
-  "swit-version": "1.1.2"
+  "swit-version": "1.1.2",
+  "main-config-version": "1.5",
+  "swit_path": [
+    "swit/",
+    "lazyconfig.py",
+    "switcli.py",
+    "cli/"
+  ]
 }
