@@ -21,12 +21,13 @@ class Swit(commands.AutoShardedBot):
 
     def __init__(
         self,
-        intents: dict[str, bool],
+        config: dict,
         *,
         command_prefix: str = "!",
         debug: bool = False,
     ):
-        self.intents_config = intents
+        self.config = config
+        self.intents_config = self.config.get("intents", {})
         self.logger = Logger(debug=debug)
         self.loader = Loader(self)
 
@@ -118,6 +119,9 @@ class Swit(commands.AutoShardedBot):
 
     def get_logger(self):
         return self.logger
+
+    def get_swit_config(self):
+        return self.config
 
     def _setup_intents(self) -> discord.Intents:
         intents = discord.Intents.default()

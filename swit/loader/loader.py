@@ -4,6 +4,7 @@ import asyncio
 import importlib.util
 import sys
 import traceback
+from idlelib.window import add_windows_to_menu
 from pathlib import Path
 
 from swit.api.enums.module_type import ModuleType
@@ -43,11 +44,13 @@ class Loader:
         "module_path",
         "registry",
         "swit",
+        "swit_loader_config",
         "waiting_depend",
     ]
 
     def __init__(self, swit):
         self.swit = swit
+        self.swit_loader_config = self.swit.get_swit_config().get("SwitLoader")
         self.logger = self.swit.get_logger()
         self.registry = Registry()
         self.loaded_modules = {}
@@ -58,7 +61,10 @@ class Loader:
 
     async def _load(self, module_path: Path, setup_step_hook_array: list):
         try:
-            module = _load_spec(module_path)
+            module = await asyncio.to_thread(
+                _load_spec,
+                module_path,
+            )
             await self.logger.info(f"Loading: {module.__name__}")
             manifest: ModuleManifest | None = getattr(module, "Manifest", None)
             if manifest is None:
@@ -106,12 +112,36 @@ class Loader:
             await self.logger.warning(f"Info: {e}")
             return False
 
+    async def load_with_semaphore(self, module_path: Path, setup_step_hook_array: list,semaphore):
+        async with semaphore:
+            return await self._load(module_path, setup_step_hook_array)
     async def start_loader(self, setup_step_hook_array):
         modules = [
             path
             for path in self.module_path.iterdir()
             if (path.is_dir() and (path / "module.py").exists())
         ]
+
+
+        # Synchronous load
+        if not self.swit_loader_config.get("parallel_load", False):
+            count = 0
+            for module in modules:
+                await self._load(module,setup_step_hook_array)
+                await self.logger.success(f"Loaded {count}/{len(modules)} modules")
+                count += 1
+            return modules
+
+        # Paralled load
+
+        if self.swit_loader_config.get("max_concurrency") and self.swit_loader_config.get("max_concurrency") != "inf":
+            semaphore = asyncio.Semaphore(self.swit_loader_config["max_concurrency"])
+            result = await asyncio.gather(
+                *(self.load_with_semaphore(module, setup_step_hook_array,semaphore) for module in modules)
+            )
+            await self.logger.success(f"Loaded {sum(result)}/{len(modules)} modules")
+            return modules
+
         result = await asyncio.gather(
             *(self._load(module, setup_step_hook_array) for module in modules)
         )
