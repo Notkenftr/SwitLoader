@@ -8,6 +8,7 @@ import discord
 from discord.ext import commands
 
 from swit.api.logger import Logger
+from swit.build_in.get_version import get_swit_version
 from swit.context import set_swit
 from swit.loader.loader import Loader
 
@@ -26,6 +27,8 @@ class Swit(commands.AutoShardedBot):
         self.logger = Logger(debug=debug)
         self.loader = Loader(self)
 
+        self.version = get_swit_version()
+
         self.discord_intents = self._setup_intents()
 
         super().__init__(intents=self.discord_intents, command_prefix=command_prefix)
@@ -38,11 +41,22 @@ class Swit(commands.AutoShardedBot):
         total_cog = await self.tree.sync()
         await self.logger.success("Done sync slash commands")
         await self.logger.success(f"Total cogs: {len(total_cog)}")
+        await self.logger.success(f"Total slash commands: {len(self.tree.get_commands())}")
+
+        slash_commands = self.tree.get_commands()
+
+        await self.logger.info(f"command map")
+        for command in slash_commands:
+            await self.logger.info(f"/{command}")
+            if isinstance(command,commands.Group):
+                for subcommand in command.commands:
+                    await self.logger.info(f"- /{subcommand}")
         await self.logger.success("Bot ready!")
 
     async def setup_hook(self) -> None:
         setup_step_hook = []
-        await self.logger.info("Start Swit")
+        await self.logger.info("Starting...")
+        await self.logger.info(f"Running on swit {self.version}")
         await self.logger.info(f"Running on {platform.python_version()}..")
         await self.logger.debug(f"Loadded {len(self.intents_config)} intents")
         await self.logger.debug(f"{self.intents_config}")
@@ -77,6 +91,11 @@ class Swit(commands.AutoShardedBot):
         await self.logger.info(
             f"Loadded: {len(setup_step_hook)} hook after {round(time.time() - start, 3)} seconds"
         )
+
+    # getter
+
+    def get_version(self):
+        return self.version
 
     def get_logger(self):
         return self.logger

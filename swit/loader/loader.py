@@ -70,7 +70,8 @@ class Loader:
                     f"Loading dependency package: {manifest.dependencies_package}"
                 )
                 await package_dependency(self, manifest)
-
+            if manifest.disable:
+                return False
             match manifest.module_type:
                 case ModuleType.PREFIX_COMMAND:
                     await self.swit.add_cog(entry(self.swit))
