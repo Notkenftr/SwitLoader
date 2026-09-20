@@ -1,4 +1,7 @@
-_version: 1.5
+_version: 1.6
+
+Swit:
+  allow_build_in_command: []
 
 Discord:
   # setup bot
@@ -52,6 +55,7 @@ SwitLoader:
   # Load multiple modules concurrently.
   parallel_load: True
   # Maximum number of modules loaded concurrently.
+  # Set it to "inf" to automatically scale with the number of modules; for example, if there are 10 modules, it will use 10 concurrent tasks.”
   max_concurrency: 32
 
   patches:

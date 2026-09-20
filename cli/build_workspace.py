@@ -1,318 +1,132 @@
 from pathlib import Path
 
+
 root = Path(__file__).parents[1]
-
-
-TEMPLATES = {
-    "PREFIX_COMMAND": """from __future__ import annotations
-
-import discord
-from discord.ext import commands
-
-from swit.app import Swit
-from swit.api import ModuleManifest, ModuleType
-
-
-class {module_class_name}(commands.Cog):
-
-    def __init__(self, bot: Swit):
-        self.bot = bot
-
-    @commands.command(name="example")
-    async def example(self, ctx: commands.Context):
-        await ctx.send("Hello from SwitLoader!")
-
-
-Manifest = ModuleManifest(
-    entry={module_class_name},
-    module_type=ModuleType.PREFIX_COMMAND,
-    name="{module_name}",
-    description="",
-    author=[],
-    dependencies_package=[],
-    dependencies_module=[]
-)
-""",
-    "SLASH_COMMAND": """from __future__ import annotations
-
-import discord
-from discord import app_commands
-from discord.ext import commands
-
-from swit.app import Swit
-from swit.api import ModuleManifest, ModuleType
-
-
-class {module_class_name}(commands.Cog):
-
-    def __init__(self, bot: Swit):
-        self.bot = bot
-
-    @app_commands.command(
-        name="example",
-        description="Example command"
-    )
-    async def example(self, interaction: discord.Interaction):
-        await interaction.response.send_message(
-            "Hello from SwitLoader!"
-        )
-
-
-Manifest = ModuleManifest(
-    entry={module_class_name},
-    module_type=ModuleType.SLASH_COMMAND,
-    name="{module_name}",
-    description="",
-    author=[],
-    dependencies_package=[],
-    dependencies_module=[]
-)
-""",
-    "GROUP_COMMAND": """from __future__ import annotations
-
-import discord
-from discord import app_commands
-
-from swit.app import Swit
-from swit.api import ModuleManifest, ModuleType
-
-
-class {module_class_name}(app_commands.Group):
-
-    def __init__(self, bot: Swit):
-        super().__init__(
-            name="{module_name}",
-            description="Example command group"
-        )
-
-        self.bot = bot
-
-    @app_commands.command(
-        name="example",
-        description="Example command"
-    )
-    async def example(self, interaction: discord.Interaction):
-        await interaction.response.send_message(
-            "Hello from SwitLoader!"
-        )
-
-
-Manifest = ModuleManifest(
-    entry={module_class_name},
-    module_type=ModuleType.GROUP_COMMAND,
-    name="{module_name}",
-    description="",
-    author=[],
-    dependencies_package=[],
-    dependencies_module=[]
-)
-""",
-    "LOOP_EVENT": """from __future__ import annotations
-
-from discord.ext import commands, tasks
-
-from swit.app import Swit
-from swit.api import ModuleManifest, ModuleType
-
-
-class {module_class_name}(commands.Cog):
-
-    def __init__(self, bot: Swit):
-        self.bot = bot
-        self.example_loop.start()
-
-    @tasks.loop(seconds=60)
-    async def example_loop(self):
-        await self.bot.logger.info(
-            "Loop event is running..."
-        )
-
-    @example_loop.before_loop
-    async def before_example_loop(self):
-        await self.bot.wait_until_ready()
-
-
-Manifest = ModuleManifest(
-    entry={module_class_name},
-    module_type=ModuleType.LOOP_EVENT,
-    name="{module_name}",
-    description="",
-    author=[],
-    dependencies_package=[],
-    dependencies_module=[]
-)
-""",
-    "CALL_SETUP_FUNC": """from __future__ import annotations
-
-from swit.app import Swit
-from swit.api import ModuleManifest, ModuleType
-
-
-async def setup(bot: Swit):
-
-    pass
-
-
-Manifest = ModuleManifest(
-    entry=setup,
-    module_type=ModuleType.CALL_SETUP_FUNC,
-    name="{module_name}",
-    description="",
-    author=[],
-    dependencies_package=[],
-    dependencies_module=[]
-)
-""",
-    "COG": """from __future__ import annotations
-
-from discord.ext import commands
-
-from swit.app import Swit
-from swit.api import ModuleManifest, ModuleType
-
-
-class {module_class_name}(commands.Cog):
-
-    def __init__(self, bot: Swit):
-        self.bot = bot
-
-
-Manifest = ModuleManifest(
-    entry={module_class_name},
-    module_type=ModuleType.COG,
-    name="{module_name}",
-    description="",
-    author=[],
-    dependencies_package=[],
-    dependencies_module=[]
-)
-""",
-    "EVENT": """from __future__ import annotations
-
-import discord
-from discord.ext import commands
-
-from swit.app import Swit
-from swit.api import ModuleManifest, ModuleType
-
-
-class {module_class_name}(commands.Cog):
-
-    def __init__(self, bot: Swit):
-        self.bot = bot
-
-    @commands.Cog.listener()
-    async def on_ready(self):
-        pass
-
-
-Manifest = ModuleManifest(
-    entry={module_class_name},
-    module_type=ModuleType.EVENT,
-    name="{module_name}",
-    description="",
-    author=[],
-    dependencies_package=[],
-    dependencies_module=[]
-)
-""",
-    "HOOK": """from __future__ import annotations
-
-from swit.app import Swit
-from swit.api import ModuleManifest, ModuleType
-
-
-async def hooker(bot: Swit):
-    pass
-
-
-Manifest = ModuleManifest(
-    entry=hooker,
-    module_type=ModuleType.HOOK_TO_SETUP_STEP,
-    name="{module_name}",
-    description="",
-    author=[],
-    dependencies_package=[],
-    dependencies_module=[]
-)
-""",
-}
-
-
-MODULE_TYPES = tuple(TEMPLATES)
 
 
 def get_class_name(module_name: str) -> str:
     return "".join(
-        part.capitalize() for part in module_name.replace("-", "_").split("_")
+        part.capitalize()
+        for part in module_name.replace("-", "_").split("_")
     )
 
 
-def create_workspace(module_name: str, module_type: str):
-    externals_path = ["views", "utils", "logic", "services"]
+def get_module_patterns() -> dict[str, str]:
+    pattern_path = root / "cli" / "pattern"
 
-    module_path = Path(root, "modules", module_name)
+    result = {}
+
+    for file in pattern_path.iterdir():
+        if file.is_file() and file.suffix == ".py":
+            result[file.stem] = file.read_text(encoding="utf-8")
+
+    return result
+
+
+def create_workspace(
+    module_name: str,
+    module_pattern: str,
+    module_pattern_data: dict[str, str],
+) -> Path:
+    externals_path = [
+        "views",
+        "utils",
+        "logic",
+        "services",
+        "configs",
+        "assets",
+    ]
+
+    module_path = root / "modules" / module_name
     module_path.mkdir(parents=True, exist_ok=True)
 
+    template = module_pattern_data[module_pattern]
+
+    module_content = (
+        template
+        .replace("ModuleName", module_name)
+        .replace(
+            "ModuleClassName",
+            get_class_name(module_name),
+        )
+        .replace("{module_name}", module_name)
+    )
+
     for external_path in externals_path:
-        path = Path(module_path, external_path)
+        path = module_path / external_path
+
         if "." not in external_path:
-            path.mkdir(exist_ok=True, parents=True)
+            path.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
         else:
-            path.parent.mkdir(exist_ok=True, parents=True)
+            path.parent.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
             path.touch(exist_ok=True)
 
     module_file = module_path / "module.py"
 
     module_file.write_text(
-        TEMPLATES[module_type].format(
-            module_name=module_name,
-            module_class_name=get_class_name(module_name),
-        ),
+        module_content,
         encoding="utf-8",
     )
 
     return module_path
 
 
-def build_workspace():
+def build_workspace() -> None:
+    print("Workspace Setup:\n")
 
-    print("=== SwitLoader Workspace Setup ===")
-    print()
-
-    module_name = input("Enter your module name: ").strip()
+    module_name = input("> Enter your module name: ").strip()
 
     if not module_name:
         print("Module name cannot be empty.")
         return
 
+    module_pattern_data = get_module_patterns()
+
+    if not module_pattern_data:
+        print("No module patterns found.")
+        return
+
     print()
-    print("Available Module Types:")
+    print("Available Module Pattern:")
     print()
 
-    for index, module_type in enumerate(MODULE_TYPES, 1):
-        print(f"{index}. {module_type}")
-
-    print()
-    print("Documentation: https://swittlab.github.io/SwitLoader.docs/module_type/")
-    print()
+    module_patterns = list(module_pattern_data)
+    print("index | module name")
+    for index, module_pattern in enumerate(module_patterns, start=1):
+        padding = " " * (2 - len(str(index)))
+        print(f"{index}.{padding}   {module_pattern.upper()}")
 
     try:
-        module_index = int(input("Select module type: ")) - 1
-        module_type = MODULE_TYPES[module_index]
+        module_index = int(
+            input("Select module pattern: ")
+        ) - 1
+
+        module_pattern = module_patterns[module_index]
+
     except (ValueError, IndexError):
-        print("Invalid module type.")
+        print("Invalid module pattern.")
         return
 
     module_path = create_workspace(
-        module_name,
-        module_type,
+        module_name=module_name,
+        module_pattern=module_pattern,
+        module_pattern_data=module_pattern_data,
     )
 
     print()
     print("Workspace created successfully!")
     print()
     print(f"Module: {module_name}")
-    print(f"Type:   {module_type}")
+    print(f"Pattern:   {module_pattern}")
     print(f"Path:   {module_path}")
     print(f"File:   {module_path / 'module.py'}")
+
+
+if __name__ == "__main__":
+    build_workspace()
