@@ -3,6 +3,7 @@ from swit.api.enums.module_type import ModuleType
 
 class ModuleManifest:
     __slots__ = [
+        "_metadata",
         "author",
         "dependencies_module",
         "dependencies_package",
@@ -10,8 +11,7 @@ class ModuleManifest:
         "disable",
         "entry",
         "module_type",
-        "name",
-        "_metadata"
+        "name"
     ]
 
     def __init__(

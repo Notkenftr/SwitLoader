@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from swit.app import Swit
 from swit.api import ModuleManifest, ModuleType
+from swit.app import Swit
 
 
 async def hooker(bot: Swit):

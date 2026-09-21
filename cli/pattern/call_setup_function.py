@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from swit.app import Swit
 from swit.api import ModuleManifest, ModuleType
+from swit.app import Swit
 
 
 async def setup(bot: Swit):
     print("hello world")
-    pass
 
 
 Manifest = ModuleManifest(

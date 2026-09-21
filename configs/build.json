@@ -1,0 +1,18 @@
+{
+  "_version": "1.0.0",
+  "config": {
+    "lazyconfig": {
+      "enable": false
+    }
+  },
+  "lock-module": {
+    "enable": false
+  },
+  "multi-venv": {
+    "enable": false
+  },
+  "output": {
+    "path": "dist",
+    "clean": true
+  }
+}

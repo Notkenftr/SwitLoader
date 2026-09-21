@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import inspect
 import platform
 import time
@@ -9,11 +8,15 @@ import traceback
 import discord
 from discord.ext import commands
 
-from patches.slash_command_try_catch import install_slash_command_try_catch_patch
+
 from swit.api.logger import Logger
+
 from swit.build_in.get_version import get_swit_version
 from swit.context import set_swit
 from swit.loader.loader import Loader
+from swit.bootstrap.setup_hook_step import _setup_intents, _load_hooker
+
+from patches.slash_command_try_catch import install_slash_command_try_catch_patch
 
 
 class Swit(commands.AutoShardedBot):
@@ -32,8 +35,7 @@ class Swit(commands.AutoShardedBot):
         self.loader = Loader(self)
 
         self.version = get_swit_version()
-
-        self.discord_intents = self._setup_intents()
+        self.discord_intents = _setup_intents(self.intents_config)
 
         super().__init__(intents=self.discord_intents, command_prefix=command_prefix)
         self.registry = None
@@ -59,7 +61,19 @@ class Swit(commands.AutoShardedBot):
                     await self.logger.info(f"- /{subcommand.name}")
         await self.logger.success("Bot ready!")
 
+
     async def setup_hook(self) -> None:
+        """
+        Initialize Swit by setting up patches, loading modules, and executing
+        registered setup hooks.
+
+        This method is called automatically during the bot initialization
+        process. Custom initialization logic can be added by overriding this
+        method.
+
+        :return: None
+        """
+
         setup_step_hook = []
         await self.logger.info("Starting...")
         await self.logger.info(f"Running on swit {self.version}")
@@ -84,19 +98,7 @@ class Swit(commands.AutoShardedBot):
         await self.logger.info(f"Found: {len(setup_step_hook)} hooks")
 
         # load hooker
-        for func in setup_step_hook:
-            if callable(func):
-                await self.logger.debug(f"Running {func.__name__}")
-                try:
-                    if inspect.iscoroutinefunction(func):
-                        await func(self)
-                    else:
-                        func(self)
-                except Exception as e:  # noqa: BLE001
-                    await self.logger.error(e)
-            else:
-                await self.logger.error(f"{func.__name__} is not callable")
-                continue
+        await _load_hooker(self, setup_step_hook)
         await self.logger.info(
             f"Loadded: {len(setup_step_hook)} hook after {round(time.time() - start, 3)} seconds"
         )
@@ -122,15 +124,3 @@ class Swit(commands.AutoShardedBot):
 
     def get_swit_config(self):
         return self.config
-
-    def _setup_intents(self) -> discord.Intents:
-        intents = discord.Intents.default()
-
-        for name, value in self.intents_config.items():
-            if name in ["auto_detect", "all", "default"]:
-                continue
-            if not hasattr(intents, name):
-                raise ValueError(f"Invalid Discord intent: {name}")
-            setattr(intents, name, value)
-
-        return intents

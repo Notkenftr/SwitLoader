@@ -1,5 +1,5 @@
-import sys
 import subprocess
+import sys
 
 package_for_build = ["rope","pipdeptree"]
 

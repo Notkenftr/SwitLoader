@@ -1,0 +1,6 @@
+{
+  "auto-download-uv": {
+    "enable": true,
+    "command": "python -m pip install uv"
+  }
+}

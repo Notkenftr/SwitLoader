@@ -4,9 +4,9 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from swit.app import Swit
-from swit.api.logger import Logger
 from swit.api import ModuleManifest, ModuleType
+from swit.api.logger import Logger
+from swit.app import Swit
 
 
 class ModuleClassName(commands.Cog):
