@@ -4,6 +4,7 @@ import inspect
 import platform
 import time
 import traceback
+from typing import Optional
 
 import discord
 from discord.ext import commands
@@ -29,10 +30,10 @@ class Swit(commands.AutoShardedBot):
         command_prefix: str = "!",
         debug: bool = False,
     ):
-        self.config = config
-        self.intents_config = self.config.get("intents", {})
-        self.logger = Logger(debug=debug)
-        self.loader = Loader(self)
+        self.config: Optional[dict,None] = config
+        self.intents_config: Optional[dict,None] = self.config.get("intents", {})
+        self.logger: Optional[Logger] = Logger(debug=debug)
+        self.loader: Optional[Loader] = Loader(self)
 
         self.version = get_swit_version()
         self.discord_intents = _setup_intents(self.intents_config)
