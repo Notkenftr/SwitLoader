@@ -10,6 +10,7 @@ def main():
 
     parser.add_argument("--setup-workspace", action="store_true")
     parser.add_argument("--pack-bot", action="store_true")
+    parser.add_argument("--build",action="store_true")
     parser.add_argument("--update", action="store_true")
     args = parser.parse_args()
 

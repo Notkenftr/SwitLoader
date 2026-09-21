@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import importlib.util
+import inspect
 import sys
 import traceback
-from idlelib.window import add_windows_to_menu
 from pathlib import Path
-
 from swit.api.enums.module_type import ModuleType
 from swit.api.types.module_manifest import ModuleManifest
 
@@ -36,12 +35,27 @@ def _load_spec(module_path: Path):
 
     return module
 
+def _insert_metadata(module_path: Path,entry,manifest: ModuleManifest) -> dict:
+    _metadata = {
+        "module_path": module_path,
+        "entry": entry
+    }
+    manifest._metadata = _metadata
+    return _metadata
+
+def _call_entry(entry,swit,manifest):
+    signature = inspect.signature(entry)
+
+    if len(signature.parameters) >= 2:
+        return entry(swit, manifest)
+    return entry(swit)
 
 class Loader:
     __slots__ = [
         "loaded_modules",
         "logger",
         "module_path",
+        "module_metadata",
         "registry",
         "swit",
         "swit_loader_config",
@@ -50,10 +64,11 @@ class Loader:
 
     def __init__(self, swit):
         self.swit = swit
-        self.swit_loader_config = self.swit.get_swit_config().get("SwitLoader")
-        self.logger = self.swit.get_logger()
+        self.swit_loader_config = self.swit.get_swit_config()
+        self.logger = self.swit.get_logger().get("SwitLoader",{})
         self.registry = Registry()
         self.loaded_modules = {}
+        self.module_metadata = {}
         self.waiting_depend = []
         self.swit.registry = self.registry
         self.module_path = PathAPI.join_path("modules")
@@ -78,32 +93,40 @@ class Loader:
                 await package_dependency(self, manifest)
             if manifest.disable:
                 return False
+            entry_instance = _call_entry(entry, self.swit, manifest)
+
             match manifest.module_type:
                 case ModuleType.PREFIX_COMMAND:
-                    await self.swit.add_cog(entry(self.swit))
+                    await self.swit.add_cog(entry_instance)
                 case ModuleType.SLASH_COMMAND:
-                    await self.swit.add_cog(entry(self.swit))
+                    await self.swit.add_cog(entry_instance)
                 case ModuleType.EVENT:
-                    await self.swit.add_cog(entry(self.swit))
+                    await self.swit.add_cog(entry_instance)
                 case ModuleType.COG:
-                    await self.swit.add_cog(entry(self.swit))
+                    await self.swit.add_cog(entry_instance)
                 case ModuleType.GROUP_COMMAND:
-                    self.swit.tree.add_command(entry(self.swit))
+                    self.swit.tree.add_command(entry_instance)
                 case ModuleType.LOOP_EVENT:
-                    await self.swit.add_listener(entry(self.swit))
-
+                    await self.swit.add_listener(entry_instance)
                 case ModuleType.HOOK_TO_SETUP_STEP:
                     for name in ("hooker", "hook", "entry"):
                         value = getattr(module, name, None)
-                        setup_step_hook_array.append(value)
+                        if value:
+                            setup_step_hook_array.append(value)
                 case ModuleType.CALL_SETUP_FUNC:
                     setup = module.setup
                     await setup(self.swit)
                 case _:
                     if entry:
-                        await self.swit.add_cog(entry(self.swit))
+                        await self.swit.add_cog(
+                            _call_entry(entry, self.swit, manifest)
+                        )
+
             self.registry.add(manifest.name, module)
             self.loaded_modules[manifest.name] = module
+            metadata = _insert_metadata(module_path=module_path, entry=entry, manifest=manifest)
+            self.module_metadata[manifest.name] = metadata
+
             return True
 
         except Exception as e:  # noqa: BLE001
@@ -115,6 +138,7 @@ class Loader:
     async def load_with_semaphore(self, module_path: Path, setup_step_hook_array: list,semaphore):
         async with semaphore:
             return await self._load(module_path, setup_step_hook_array)
+
     async def start_loader(self, setup_step_hook_array):
         modules = [
             path
@@ -148,7 +172,3 @@ class Loader:
         await self.logger.success(f"Loaded {sum(result)}/{len(modules)} modules")
         return modules
 
-
-if __name__ == "__main__":
-    loader = Loader()
-    asyncio.run(loader.start_loader())

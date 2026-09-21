@@ -39,9 +39,6 @@ class Swit(commands.AutoShardedBot):
         self.registry = None
         set_swit(self)
 
-        asyncio.run(self.logger.info("Setup patches"))
-        install_slash_command_try_catch_patch(self)
-
     async def on_ready(self):
         await self.logger.info(f"Logged in as {self.user} (ID: {self.user.id})")
         await self.logger.info("Start sync slash commands")
@@ -67,6 +64,9 @@ class Swit(commands.AutoShardedBot):
         await self.logger.info("Starting...")
         await self.logger.info(f"Running on swit {self.version}")
         await self.logger.info(f"Running on {platform.python_version()}..")
+        await self.logger.info("Setup patches")
+        install_slash_command_try_catch_patch(self)
+        await self.logger.success("Install patches success!")
         await self.logger.debug(f"Loadded {len(self.intents_config)} intents")
         await self.logger.debug(f"{self.intents_config}")
         await self.logger.info("Start Loader")

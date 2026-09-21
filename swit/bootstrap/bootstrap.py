@@ -62,7 +62,7 @@ async def main():
     from swit.app import Swit
 
     bot = Swit(
-        config=discord_config,
+        config=config,
         command_prefix=discord_config.get("command_prefix", "!"),
         debug=config.get("Logger", {}).get("debug", False),
     )

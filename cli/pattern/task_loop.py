@@ -9,10 +9,9 @@ from swit.api import ModuleManifest, ModuleType
 
 class ModuleClassName(commands.Cog):
 
-    def __init__(self, bot: Swit):
+    def __init__(self, bot: Swit, manifest: ModuleManifest):
         self.bot = bot
-        self.logger: Logger = bot.get_cog("Logger")
-
+        self.logger: Logger = bot.get_logger()
         self.example_loop.start()
 
     @tasks.loop(seconds=60)

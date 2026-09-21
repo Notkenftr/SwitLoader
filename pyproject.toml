@@ -7,7 +7,9 @@ dependencies = [
     "aiofiles>=25.1.0",
     "colorama>=0.4.6",
     "discord-py>=2.7.1",
+    "pipdeptree>=4.2.5",
     "pyyaml>=6.0.3",
     "rich>=15.0.0",
+    "rope>=1.14.0",
     "ruff>=0.16.6",
 ]

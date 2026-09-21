@@ -1,0 +1,19 @@
+{
+    "asyncio.semaphore": 32,
+    "asyncio.timeout": 30,
+    "asyncio.gather.return_exceptions": false,
+    "asyncio.gather.cancel_on_error": true,
+    "asyncio.task.name": true,
+    "asyncio.task.eager_start": true,
+    "asyncio.task.cancel_timeout": 5,
+    "asyncio.queue.maxsize": 0,
+    "asyncio.queue.get_timeout": 30,
+    "asyncio.queue.put_timeout": 30,
+    "asyncio.handler.max_concurrency": 32,
+    "asyncio.handler.timeout": 30,
+    "asyncio.handler.retry": 0,
+    "asyncio.handler.retry_delay": 1,
+    "asyncio.handler.cancel_on_shutdown": true,
+    "asyncio.handler.wait_on_shutdown": true,
+    "asyncio.handler.shutdown_timeout": 10
+}

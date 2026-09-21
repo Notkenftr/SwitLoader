@@ -11,6 +11,7 @@ class ModuleManifest:
         "entry",
         "module_type",
         "name",
+        "_metadata"
     ]
 
     def __init__(
@@ -34,3 +35,6 @@ class ModuleManifest:
         self.dependencies_package = dependencies_package
         self.dependencies_module = dependencies_module
         self.disable = disable
+
+        #do not edit this
+        self._metadata = {}

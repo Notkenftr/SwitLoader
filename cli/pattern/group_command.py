@@ -10,7 +10,7 @@ from swit.api import ModuleManifest, ModuleType
 
 class ModuleClassName(app_commands.Group):
 
-    def __init__(self, bot: Swit):
+    def __init__(self, bot: Swit, manifest: ModuleManifest):
         super().__init__(
             name="{module_name}",
             description="Example command group"
