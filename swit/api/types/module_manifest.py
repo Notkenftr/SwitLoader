@@ -1,4 +1,8 @@
+from collections.abc import Callable
+from typing import Any
+
 from swit.api.enums.module_type import ModuleType
+
 
 
 class ModuleManifest:
@@ -17,7 +21,7 @@ class ModuleManifest:
     def __init__(
         self,
         /,
-        entry: type[object],
+        entry: type[Any] | Callable[..., Any],
         module_type: ModuleType,
         name: str,
         description: str,
