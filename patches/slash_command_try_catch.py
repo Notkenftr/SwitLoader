@@ -19,6 +19,17 @@ def install_slash_command_try_catch_patch(swit):
         except Exception as e:
             logger = swit.get_logger()
 
+            command_info = {
+                "name": self.name,
+                "qualified_name": self.qualified_name,
+                "module": self.callback.__module__,
+                "callback": self.callback.__qualname__,
+                "interaction_command": interaction.command,
+                "user": interaction.user,
+                "guild": interaction.guild,
+                "channel": interaction.channel,
+            }
+
             command_name = self.name
             qualified_name = self.qualified_name
             module = self.callback.__module__
@@ -26,9 +37,7 @@ def install_slash_command_try_catch_patch(swit):
             await logger.warning(f"-"*50)
             await logger.warning(
                 "Error occurred while trying to execute slash command: "
-                f"{qualified_name} "
-                f"(name={command_name}, module={module}, "
-                f"user={interaction.user}, guild={interaction.guild})"
+                f"command info: {command_info}"
             )
             await logger.warning(f"-" * 50)
             await logger.error(e)
