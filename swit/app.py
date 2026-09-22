@@ -12,6 +12,7 @@ from swit.bootstrap.setup_hook_step import _load_hooker
 from swit.build_in.get_version import get_swit_version
 from swit.context import set_swit
 from swit.loader.loader import Loader
+from swit.bootstrap.setup_hook_step import _setup_intents
 
 
 class Swit(commands.AutoShardedBot):
@@ -32,7 +33,7 @@ class Swit(commands.AutoShardedBot):
         self.version = get_swit_version()
         self.intents_config: dict = (self.config or {}).get("intents", {})
 
-        super().__init__(intents=self.discord_intents, command_prefix=command_prefix)
+        super().__init__(intents=_setup_intents(self.intents_config), command_prefix=command_prefix)
         self.registry = None
         set_swit(self)
 
