@@ -135,6 +135,8 @@ class JsonDb:
             data: dict,
             database_name: str | None = None,
             indent: int = 4,
+            waiting_table_rand_a: float = 0.000001,
+            waiting_table_rand_b: float = 0.0005,
             /,
             dyn_retry_count: int = 0,
     ) -> None | bool:
@@ -146,13 +148,18 @@ class JsonDb:
         save operations from writing to the same database at the same time.
 
         If the database is currently locked, the method waits for a random
-        short interval and retries the operation. After 50 retry attempts,
-        ``False`` is returned.
+        interval between ``waiting_table_rand_a`` and
+        ``waiting_table_rand_b`` seconds before retrying. After 50 retry
+        attempts, ``False`` is returned.
 
         :param data: Complete database contents to save.
         :param database_name: Name of the database to save. If omitted,
             ``database_file_name`` is used.
         :param indent: Number of spaces used for JSON indentation.
+        :param waiting_table_rand_a: Minimum waiting time in seconds before
+            retrying.
+        :param waiting_table_rand_b: Maximum waiting time in seconds before
+            retrying.
         :param dyn_retry_count: Internal retry counter used when waiting for
             another save operation to finish.
         :raises ValueError: If no database name is available.
@@ -161,22 +168,35 @@ class JsonDb:
             ``False`` if the maximum number of retries is reached.
         """
         database_name = database_name or self.database_file_name
+
         if database_name is None:
             raise ValueError(
                 "Either database_name or database_file_name must be provided."
             )
+
         if database_name in self.lock_table:
             if self.lock_table.get(database_name, False) is not True:
                 if dyn_retry_count >= 50:
                     return False
-                await asyncio.sleep(random.uniform(0.000001,0.0005))
+
+                await asyncio.sleep(
+                    random.uniform(
+                        waiting_table_rand_a,
+                        waiting_table_rand_b,
+                    )
+                )
+
                 return await self.save(
                     data,
                     database_name,
                     indent,
+                    waiting_table_rand_a,
+                    waiting_table_rand_b,
                     dyn_retry_count=dyn_retry_count + 1,
                 )
+
         self.lock_table[database_name] = True
+
         try:
             if not name_to_path(database_name).exists():
                 raise RuntimeError(
@@ -187,7 +207,10 @@ class JsonDb:
                     name_to_path(database_name),
                     mode="w",
             ) as f:
-                await f.write(json.dumps(data, indent=indent))
+                await f.write(
+                    json.dumps(data, indent=indent)
+                )
+
         finally:
             self.lock_table[database_name] = False
 
