@@ -1,23 +1,18 @@
 from __future__ import annotations
 
-import inspect
 import platform
 import time
 import traceback
 from typing import Optional
 
-import discord
 from discord.ext import commands
 
-
+from patches.slash_command_try_catch import install_slash_command_try_catch_patch
 from swit.api.logger import Logger
-
+from swit.bootstrap.setup_hook_step import _load_hooker, _setup_intents
 from swit.build_in.get_version import get_swit_version
 from swit.context import set_swit
 from swit.loader.loader import Loader
-from swit.bootstrap.setup_hook_step import _setup_intents, _load_hooker
-
-from patches.slash_command_try_catch import install_slash_command_try_catch_patch
 
 
 class Swit(commands.AutoShardedBot):
@@ -32,11 +27,11 @@ class Swit(commands.AutoShardedBot):
     ):
         self.config: Optional[dict,None] = config
         self.intents_config: Optional[dict,None] = self.config.get("intents", {})
-        self.logger: Optional[Logger] = Logger(debug=debug)
-        self.loader: Optional[Loader] = Loader(self)
+        self.logger: Logger | None = Logger(debug=debug)
+        self.loader: Loader | None = Loader(self)
 
         self.version = get_swit_version()
-        self.discord_intents = _setup_intents(self.intents_config)
+        self.intents_config: dict = (self.config or {}).get("intents", {})
 
         super().__init__(intents=self.discord_intents, command_prefix=command_prefix)
         self.registry = None

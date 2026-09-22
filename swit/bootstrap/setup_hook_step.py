@@ -1,5 +1,7 @@
-import discord
 import inspect
+
+import discord
+
 
 def _setup_intents(intents_config: dict) -> discord.Intents:
     intents = discord.Intents.default()

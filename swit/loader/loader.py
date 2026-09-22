@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import asyncio
 from pathlib import Path
 from typing import Optional
@@ -7,12 +9,16 @@ from typing import Optional
 from discord import Object
 
 from swit.api.logger import Logger
+
 # api
 from swit.api.utils.path_api import PathAPI
-from swit.app import Swit
 from swit.loader.load_module import _load
+
 # local
 from swit.loader.registry import Registry
+
+if TYPE_CHECKING:
+    from swit.app import Swit
 
 class Loader:
     __slots__ = [

@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-import sys
-import inspect
-import traceback
-import importlib.util
-
 import asyncio
+import importlib.util
+import inspect
+import sys
+import traceback
 from pathlib import Path
-
-from swit.loader.dependency import package_dependency
 
 # types
 from swit.api.enums.module_type import ModuleType
 from swit.api.types.module_manifest import ModuleManifest
+from swit.loader.dependency import package_dependency
 
 
 def _load_spec(module_path: Path):
