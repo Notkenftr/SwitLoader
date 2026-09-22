@@ -3,13 +3,12 @@ from __future__ import annotations
 import platform
 import time
 import traceback
-from typing import Optional
 
 from discord.ext import commands
 
 from patches.slash_command_try_catch import install_slash_command_try_catch_patch
 from swit.api.logger import Logger
-from swit.bootstrap.setup_hook_step import _load_hooker, _setup_intents
+from swit.bootstrap.setup_hook_step import _load_hooker
 from swit.build_in.get_version import get_swit_version
 from swit.context import set_swit
 from swit.loader.loader import Loader
@@ -25,8 +24,8 @@ class Swit(commands.AutoShardedBot):
         command_prefix: str = "!",
         debug: bool = False,
     ):
-        self.config: Optional[dict,None] = config
-        self.intents_config: Optional[dict,None] = self.config.get("intents", {})
+        self.config: dict | None = config
+        self.intents_config: dict | None = self.config.get("intents", {})
         self.logger: Logger | None = Logger(debug=debug)
         self.loader: Loader | None = Loader(self)
 

@@ -3,11 +3,12 @@ from __future__ import annotations
 import asyncio
 import json
 import random
+from pathlib import Path
 
 import aiofiles
 
-from pathlib import Path
 from swit.api import PathAPI
+
 
 def name_to_path(name: str) -> Path:
     return PathAPI.join_path(
@@ -174,26 +175,25 @@ class JsonDb:
                 "Either database_name or database_file_name must be provided."
             )
 
-        if database_name in self.lock_table:
-            if self.lock_table.get(database_name, False) is not True:
-                if dyn_retry_count >= 50:
-                    return False
+        if database_name in self.lock_table and self.lock_table.get(database_name, False) is not True:
+            if dyn_retry_count >= 50:
+                return False
 
-                await asyncio.sleep(
-                    random.uniform(
-                        waiting_table_rand_a,
-                        waiting_table_rand_b,
-                    )
-                )
-
-                return await self.save(
-                    data,
-                    database_name,
-                    indent,
+            await asyncio.sleep(
+                random.uniform(
                     waiting_table_rand_a,
                     waiting_table_rand_b,
-                    dyn_retry_count=dyn_retry_count + 1,
                 )
+            )
+
+            return await self.save(
+                data,
+                database_name,
+                indent,
+                waiting_table_rand_a,
+                waiting_table_rand_b,
+                dyn_retry_count=dyn_retry_count + 1,
+            )
 
         self.lock_table[database_name] = True
 

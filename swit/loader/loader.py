@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import asyncio
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING
 
 from discord import Object
 
@@ -34,7 +32,7 @@ class Loader:
 
     def __init__(self, swit):
         self.swit: Swit = swit
-        self.swit_loader_config: Optional[dict,None] = self.swit.get_swit_config().get("SwitLoader",{})
+        self.swit_loader_config: dict | None = self.swit.get_swit_config().get("SwitLoader",{})
         self.logger: Logger = self.swit.get_logger()
         self.registry: Registry = Registry()
 

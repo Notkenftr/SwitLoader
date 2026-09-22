@@ -4,7 +4,6 @@ from typing import Any
 from swit.api.enums.module_type import ModuleType
 
 
-
 class ModuleManifest:
     __slots__ = [
         "_metadata",
