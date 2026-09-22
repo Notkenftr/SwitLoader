@@ -30,10 +30,6 @@ def install_slash_command_try_catch_patch(swit):
                 "channel": interaction.channel,
             }
 
-            command_name = self.name
-            qualified_name = self.qualified_name
-            module = self.callback.__module__
-
             await logger.warning(f"-"*50)
             await logger.warning(
                 "Error occurred while trying to execute slash command: "
