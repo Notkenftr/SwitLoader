@@ -9,5 +9,7 @@ class PathAPI:
         return root
 
     @staticmethod
-    def join_path(*args) -> Path:
+    def join_path(*args,create_parent = False) -> Path:
+        if create_parent:
+            Path(root,*args).mkdir(parents=True,exist_ok=True)
         return Path(root, *args)
