@@ -6,13 +6,16 @@ from discord.ext import commands
 from swit.api import ModuleManifest, ModuleType
 from swit.api.logger import Logger
 from swit.app import Swit
+from swit.loader.loader import Loader
 
 
 class BuildIn(commands.Cog):
 
     def __init__(self, bot: Swit, manifest: ModuleManifest):
         self.bot = bot
+        self.loader: Loader = self.bot.loader
         self.logger: Logger = bot.get_logger()
+
     @commands.command(name="unload")
     async def build_in(
             self,
@@ -41,7 +44,7 @@ class BuildIn(commands.Cog):
 
         await msg.edit(content=content)
 
-        
+
 Manifest = ModuleManifest(
     entry=BuildIn,
     module_type=ModuleType.PREFIX_COMMAND,
