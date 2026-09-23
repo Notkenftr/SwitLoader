@@ -111,7 +111,6 @@ class Swit(commands.AutoShardedBot):
         )
 
     # getter
-
     def get_version(self):
         return self.version
 

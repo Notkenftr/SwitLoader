@@ -4,6 +4,7 @@ from .types.module_manifest import ModuleManifest
 from .utils.hotswap import hotswap_function
 from .utils.package import install_package
 from .utils.path_api import PathAPI
+from .database import JsonDb
 
 __all__ = [
     "ModuleManifest",
@@ -12,4 +13,5 @@ __all__ = [
     "get_swit_instance",
     "hotswap_function",
     "install_package",
+    "JsonDb"
 ]

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 import asyncio
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type, Any, Coroutine
 
 from discord import Object
 
@@ -14,7 +16,7 @@ from swit.loader.load_module import _load
 
 # local
 from swit.loader.registry import Registry
-
+from swit.loader.unload_module import _unload_module_by_name
 if TYPE_CHECKING:
     from swit.app import Swit
 
@@ -36,7 +38,7 @@ class Loader:
         self.logger: Logger = self.swit.get_logger()
         self.registry: Registry = Registry()
 
-        self.loaded_modules: dict[str,Object] = {}
+        self.loaded_modules: dict[str,Type[Object | Any] | Callable] = {}
         self.module_metadata: dict[str,dict[str,...]] = {}
         self.waiting_depend = []
         self.swit.registry = self.registry
@@ -68,7 +70,7 @@ class Loader:
             return modules
 
         # Paralled load
-        if self.swit_loader_config.get("max_concurrency") and self.swit_loader_config.get("max_concurrency") != "inf":
+        if self.swit_loader_config.get("max_concurrency") and self.swit_loader_config.get("max_concurrency") not in ["inf","auto"]:
             semaphore = asyncio.Semaphore(self.swit_loader_config["max_concurrency"])
             result = await asyncio.gather(
                 *(self.load_with_semaphore(module, setup_step_hook_array,semaphore) for module in modules)
@@ -82,3 +84,26 @@ class Loader:
         await self.logger.success(f"Loaded {sum(result)}/{len(modules)} modules")
         return modules
 
+    def get_all_modules(self) -> dict[str,Type[Object | Any] | Callable]:
+        return self.loaded_modules
+    def get_module_by_name(self,name: str):
+        return self.loaded_modules.get(name,None)
+
+    async def load_module_by_name(self,name:str,/,debug: bool = False) -> bool | tuple[bool,str]:
+        ...
+
+    async def unload_module_by_name(
+            self,
+            name: str,
+            /,
+            debug: bool = False,
+    ) -> Coroutine[Any, Any, bool | tuple[bool, str]]:
+        """
+        Unload a loaded module by its name.
+        :param name: Name of the module to unload.
+        :param debug: Whether to return an error message when the unload fails.
+        :return: ``True`` if the module was unloaded successfully, otherwise
+            ``False``. If ``debug`` is enabled, returns a tuple containing
+            the success status and a descriptive message.
+        """
+        return _unload_module_by_name(self, name, debug)
