@@ -4,6 +4,7 @@ import platform
 import time
 import traceback
 
+import discord
 from discord.ext import commands
 
 from patches.slash_command_try_catch import install_slash_command_try_catch_patch
@@ -26,12 +27,11 @@ class Swit(commands.AutoShardedBot):
         debug: bool = False,
     ):
         self.config: dict | None = config
-        self.intents_config: dict | None = self.config.get("intents", {})
         self.logger: Logger | None = Logger(debug=debug)
         self.loader: Loader | None = Loader(self)
 
         self.version = get_swit_version()
-        self.intents_config: dict = (self.config or {}).get("intents", {})
+        self.intents_config: dict = (self.config or {}).get("Discord",{}).get("intents", {})
 
         super().__init__(intents=_setup_intents(self.intents_config), command_prefix=command_prefix)
         self.registry = None

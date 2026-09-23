@@ -113,7 +113,7 @@ def build_workspace() -> None:
         return
 
     module_path = create_workspace(
-        module_name=module_name,
+        module_name=module_name.replace("-","").replace(" ",""),
         module_pattern=module_pattern,
         module_pattern_data=module_pattern_data,
     )
