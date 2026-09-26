@@ -6,6 +6,7 @@ class ModuleType(IntEnum):
     SLASH_COMMAND = 1
     GROUP_COMMAND = 2
     LOOP_EVENT = 3
+    TASK_LOOP = 3
     EVENT = 4
     COG = 5
     HOOK_TO_SETUP_STEP = 6

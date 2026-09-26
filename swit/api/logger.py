@@ -37,7 +37,6 @@ LEVEL_COLOR = {
 def get_now():
     return datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S")
 
-
 class Logger:
     def __init__(
         self, debug: bool = False, custom_colors: dict[LoggerLevel, str] | None = None

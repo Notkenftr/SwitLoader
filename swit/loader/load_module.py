@@ -79,7 +79,10 @@ async def _load(loader_instance, module_path: Path, setup_step_hook_array: list)
             case ModuleType.GROUP_COMMAND:
                 loader_instance.swit.tree.add_command(entry_instance)
             case ModuleType.LOOP_EVENT:
-                await loader_instance.swit.add_listener(entry_instance)
+                await loader_instance.logger.warning(f"[{manifest.name}] ModuleType.LOOP_EVENT is deprecated and will be removed in a future release. ""Please replace it with ModuleType.TASK_LOOP.")
+                await loader_instance.swit.add_cog(entry_instance)
+            case ModuleType.TASK_LOOP:
+                await loader_instance.swit.add_cog(entry_instance)
             case ModuleType.HOOK_TO_SETUP_STEP:
                 for name in ("hooker", "hook", "entry"):
                     value = getattr(module, name, None)
