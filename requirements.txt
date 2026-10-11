@@ -9,7 +9,7 @@ frozenlist==1.8.0
 idna==3.18
 markdown-it-py==4.2.0
 mdurl==0.1.2
-multidict==6.7.1
+multidict==6.9.1
 propcache==0.5.2
 pygments==2.20.0
 pyyaml==6.0.3
