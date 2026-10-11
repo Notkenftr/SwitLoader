@@ -30,7 +30,8 @@ class PathAPI:
             and its parent directories.
         :return: The resulting path.
         """
+        target = Path(root, *args)
         if create_parent:
-            Path(root, *args).mkdir(parents=True, exist_ok=True)
+            target.parent.mkdir(parents=True, exist_ok=True)
 
-        return Path(root, *args)
+        return target

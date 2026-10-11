@@ -92,10 +92,8 @@ async def _load(loader_instance, module_path: Path, setup_step_hook_array: list)
                 setup = module.setup
                 await setup(loader_instance.swit)
             case _:
-                if entry:
-                    await loader_instance.swit.add_cog(
-                        _call_entry(entry, loader_instance.swit, manifest)
-                    )
+                if entry_instance:
+                    await loader_instance.swit.add_cog(entry_instance)
 
         loader_instance.registry.add(manifest.name, module)
         loader_instance.loaded_modules[manifest.name] = module

@@ -1,6 +1,7 @@
 import json
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 swit_repo = "https://github.com/Notkenftr/SwitLoader"
@@ -10,24 +11,22 @@ def update_swit():
     print(f"checking {swit_repo}")
 
     root = Path(__file__).parents[1]
-    tmp = Path("/tmp/SwitLoader")
-
-    if tmp.exists():
-        shutil.rmtree(tmp)
-
-    subprocess.run(
-        [
-            "git",
-            "clone",
-            "--depth",
-            "1",
-            swit_repo,
-            str(tmp),
-        ],
-        check=True,
-    )
+    tmp_str = tempfile.mkdtemp(prefix="SwitLoader_")
+    tmp = Path(tmp_str)
 
     try:
+        subprocess.run(
+            [
+                "git",
+                "clone",
+                "--depth",
+                "1",
+                swit_repo,
+                str(tmp),
+            ],
+            check=True,
+        )
+
         with open(tmp / "swit" / "meta.json", "r", encoding="utf-8") as f:
             metadata = json.load(f)
 
@@ -53,7 +52,7 @@ def update_swit():
             print(f"updated: {path}")
 
     finally:
-        shutil.rmtree(tmp)
+        shutil.rmtree(tmp, ignore_errors=True)
 
 
 if __name__ == "__main__":

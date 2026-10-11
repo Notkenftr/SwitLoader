@@ -11,6 +11,12 @@ if TYPE_CHECKING:
     from swit.loader.loader import Loader
 
 
+import importlib.metadata
+import importlib.util
+
+from swit.api.cache import cache
+
+
 def get_package_manager() -> list[str]:
     if shutil.which("uv") is not None:
         return ["uv", "pip"]
@@ -19,10 +25,26 @@ def get_package_manager() -> list[str]:
 
 
 def package_exists(package: str) -> bool:
+    clean_name = package.strip()
+    if cache.is_package_cached(clean_name):
+        return True
+
+    try:
+        importlib.metadata.distribution(clean_name)
+        cache.cache_package(clean_name)
+        return True
+    except (importlib.metadata.PackageNotFoundError, ValueError):
+        pass
+
+    module_name = clean_name.replace("-", "_")
+    if importlib.util.find_spec(module_name) is not None:
+        cache.cache_package(clean_name)
+        return True
+
     command = [
         *get_package_manager(),
         "show",
-        package,
+        clean_name,
     ]
     result = subprocess.run(
         command,
@@ -30,15 +52,18 @@ def package_exists(package: str) -> bool:
         stderr=subprocess.DEVNULL,
         check=False,
     )
-    return result.returncode == 0
+    if result.returncode == 0:
+        cache.cache_package(clean_name)
+        return True
+    return False
 
 
 async def install_dependency(package: str) -> bool:
-    command = [
-        *get_package_manager(),
-        "install",
-        package,
-    ]
+    pm = get_package_manager()
+    if pm[0] == "uv":
+        command = [*pm, "install", "--python", sys.executable, package]
+    else:
+        command = [*pm, "install", package]
     process = await asyncio.create_subprocess_exec(
         *command,
         stdout=asyncio.subprocess.PIPE,
@@ -49,6 +74,7 @@ async def install_dependency(package: str) -> bool:
         error = stderr.decode(errors="replace")
 
         raise RuntimeError(f"Failed to install package '{package}':\n{error}")
+    cache.cache_package(package)
     return True
 
 
@@ -61,6 +87,10 @@ async def package_dependency(
         package = package.strip()
         if not package:
             continue
+
+        if cache.is_package_cached(package):
+            continue
+
         await loader.logger.info(f"Checking dependency: {package}")
 
         if package_exists(package):

@@ -109,7 +109,7 @@ def archive_project():
     build_dir = root_dir / "build"
     build_dir.mkdir(parents=True, exist_ok=True)
 
-    ignore_dirs = {".git", ".idea", "__pycache__", "build"}
+    ignore_dirs = {".git", ".idea", "__pycache__", "build", ".ruff_cache", ".pytest_cache", ".cache", "logs"}
 
     files_to_pack = []
     for file_path in root_dir.rglob("*"):

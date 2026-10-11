@@ -14,17 +14,18 @@ def _setup_intents(intents_config: dict) -> discord.Intents:
 
     return intents
 
-async def _load_hooker(self,setup_step_hook):
+async def _load_hooker(self, setup_step_hook):
     for func in setup_step_hook:
+        func_name = getattr(func, "__name__", str(func))
         if callable(func):
-            await self.logger.debug(f"Running {func.__name__}")
+            await self.logger.debug(f"Running {func_name}")
             try:
                 if inspect.iscoroutinefunction(func):
                     await func(self)
                 else:
                     func(self)
             except Exception as e:  # noqa: BLE001
-                await self.logger.error(e)
+                await self.logger.error(f"Error running hook {func_name}: {e}")
         else:
-            await self.logger.error(f"{func.__name__} is not callable")
+            await self.logger.error(f"{func_name} is not callable")
             continue

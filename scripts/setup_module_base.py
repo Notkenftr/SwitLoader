@@ -21,8 +21,8 @@ class {module_class_name}(commands.Cog):
     async def example(self,interaction: discord.Interaction):
         pass
 
-async def setup(self,bot: Swit):
-    self.bot.add_command({module_class_name}(bot))
+async def setup(bot: Swit):
+    await bot.add_cog({module_class_name}(bot))
 
 
 Manifest = ModuleManifest(
@@ -43,7 +43,7 @@ def main():
     module_path = Path(root, "modules", module_name)
     module_path.mkdir(parents=True, exist_ok=True)
 
-    module_entry_file = module_path / "module.txt"
+    module_entry_file = module_path / "module.py"
     module_entry_file.touch(exist_ok=True)
 
     with open(module_entry_file, "w") as f:

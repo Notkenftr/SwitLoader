@@ -37,18 +37,42 @@ def load_config() -> dict:
 
     return config
 
+def load_dotenv_if_exists() -> None:
+    import os
+
+    env_path = Path(PathAPI.join_path(".env"))
+    if env_path.exists():
+        with env_path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, val = line.split("=", 1)
+                    key = key.strip()
+                    val = val.strip().strip("'\"")
+                    if key and key not in os.environ:
+                        os.environ[key] = val
+
+
 def load_lazyconfig() -> dict:
-    import lazyconfig
-    return vars(lazyconfig)
+    try:
+        import lazyconfig
+        return {
+            k: v for k, v in vars(lazyconfig).items()
+            if not k.startswith("_")
+        }
+    except ModuleNotFoundError:
+        return {}
+
 
 async def main():
-    ensure_dependencies()
-    depend_handler()
-
     if sys.version_info < (3, 13):  # noqa: UP036
         raise RuntimeError(
             f"Python 3.13+ is required. Current version: {sys.version.split()[0]}"
         )
+
+    ensure_dependencies()
+    depend_handler()
+    load_dotenv_if_exists()
 
     config = load_config()
 
@@ -57,18 +81,20 @@ async def main():
     if not isinstance(discord_config, dict):
         raise TypeError("Discord config must be a mapping")
 
-    bot_token = discord_config.get("bot-token")
+    import os
+    bot_token = (
+        discord_config.get("bot-token")
+        or discord_config.get("bot_token")
+        or os.getenv("DISCORD_BOT_TOKEN")
+        or os.getenv("DISCORD_TOKEN")
+    )
 
     if not bot_token:
-        raise ValueError("Missing required config: Discord.bot_token")
+        raise ValueError("Missing required config: Discord.bot-token in config.yml")
 
     from swit.app import Swit
 
-    # load lazy
-    try:
-        lazyconfig = load_lazyconfig()
-    except ModuleNotFoundError:
-        lazyconfig = None
+    lazyconfig = load_lazyconfig()
 
     bot = Swit(
         config=config,
@@ -77,16 +103,18 @@ async def main():
         debug=config.get("Logger", {}).get("debug", False),
     )
 
-    await bot.start(bot_token)
+    try:
+        await bot.start(bot_token)
+    finally:
+        if not bot.is_closed():
+            await bot.close()
 
 
 def bootstrap():
     try:
         asyncio.run(main())
-
     except KeyboardInterrupt:
-        print("Stop")
-
+        print("\n[SwitLoader] Stopped by user (KeyboardInterrupt).")
     except Exception as e:
-        print(f"Fatal error: {type(e).__name__}: {e}")
+        print(f"\n[SwitLoader] Fatal error: {type(e).__name__}: {e}")
         raise

@@ -1,10 +1,8 @@
-from __future__ import annotations
+import os
 
 import aiofiles
-import os
 import yaml
-from discord.ext import commands
-from discord.ext import tasks
+from discord.ext import commands, tasks
 
 from swit.api import ModuleManifest, ModuleType
 from swit.api.logger import Logger
@@ -22,6 +20,10 @@ class BuildIn(commands.Cog):
 
         self.config_path = PathAPI.join_path("config.yml")
         self._config_mtime = 0
+        self.reload_main_config.start()
+
+    def cog_unload(self):
+        self.reload_main_config.cancel()
 
     @commands.command(name="unload")
     async def build_in(
@@ -51,14 +53,17 @@ class BuildIn(commands.Cog):
 
         await msg.edit(content=content)
 
-    @tasks.loop(seconds=0.05)
+    @tasks.loop(seconds=2.0)
     async def reload_main_config(self):
-        mtime = os.stat(self.config_path).st_mtime_ns
-        if mtime <= self._config_mtime:
-            return
-        self._config_mtime = mtime
-        async with aiofiles.open(self.config_path, mode="r") as f:
-            self.bot.config = yaml.safe_load(await f.read())
+        try:
+            mtime = os.stat(self.config_path).st_mtime_ns
+            if mtime <= self._config_mtime:
+                return
+            self._config_mtime = mtime
+            async with aiofiles.open(self.config_path, mode="r", encoding="utf-8") as f:
+                self.bot.config = yaml.safe_load(await f.read())
+        except Exception:  # noqa: BLE001, S110
+            pass
 
 Manifest = ModuleManifest(
     entry=BuildIn,

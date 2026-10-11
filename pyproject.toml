@@ -1,6 +1,6 @@
 [project]
 name = "switloader"
-version = "0.1.0"
+version = "1.1.8"
 description = "Swit Loader"
 requires-python = ">=3.13"
 dependencies = [
@@ -13,3 +13,6 @@ dependencies = [
     "rope>=1.14.0",
     "ruff>=0.16.6",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

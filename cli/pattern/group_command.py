@@ -20,7 +20,7 @@ class ModuleClassName(app_commands.Group):
         self.logger: Logger = bot.get_logger()
 
     @app_commands.command(
-        name="{module_name",
+        name="{module_name}",
         description="Example command"
     )
     async def ModuleName(self, interaction: discord.Interaction):

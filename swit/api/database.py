@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import json
-import random
+import os
 from pathlib import Path
+from typing import ClassVar
 
 import aiofiles
 
-from swit.api import PathAPI
+from swit.api.utils.path_api import PathAPI
 
 
 def name_to_path(name: str) -> Path:
@@ -31,6 +32,15 @@ class JsonDb:
     :param database_file_name: Default database name used when no
         ``database_name`` is provided to an operation.
     """
+    _locks: ClassVar[dict[str, asyncio.Lock]] = {}
+    _cache: ClassVar[dict[str, tuple[int, dict]]] = {}
+
+    @classmethod
+    def _get_lock(cls, name: str) -> asyncio.Lock:
+        if name not in cls._locks:
+            cls._locks[name] = asyncio.Lock()
+        return cls._locks[name]
+
     def __init__(self, database_file_name: str):
         """
         Initialize a JSON database manager.
@@ -128,8 +138,19 @@ class JsonDb:
             raise ValueError(
                 "Either database_name or database_file_name must be provided."
             )
-        async with aiofiles.open(name_to_path(database_name), mode="r") as f:
-            return json.loads(await f.read())
+        path = name_to_path(database_name)
+        if not path.exists():
+            raise FileNotFoundError(f"Database file not found: {path}")
+
+        mtime = path.stat().st_mtime_ns
+        if database_name in self._cache and self._cache[database_name][0] == mtime:
+            return dict(self._cache[database_name][1])
+
+        async with aiofiles.open(path, mode="r", encoding="utf-8") as f:
+            data = json.loads(await f.read())
+
+        self._cache[database_name] = (mtime, data)
+        return dict(data)
 
     async def save(
             self,
@@ -175,43 +196,16 @@ class JsonDb:
                 "Either database_name or database_file_name must be provided."
             )
 
-        if database_name in self.lock_table and self.lock_table.get(database_name, False) is not True:
-            if dyn_retry_count >= 50:
-                return False
+        path = name_to_path(database_name)
+        if not path.exists():
+            raise RuntimeError(f"database {database_name} does not exist")
 
-            await asyncio.sleep(
-                random.uniform(
-                    waiting_table_rand_a,
-                    waiting_table_rand_b,
-                )
-            )
-
-            return await self.save(
-                data,
-                database_name,
-                indent,
-                waiting_table_rand_a,
-                waiting_table_rand_b,
-                dyn_retry_count=dyn_retry_count + 1,
-            )
-
-        self.lock_table[database_name] = True
-
-        try:
-            if not name_to_path(database_name).exists():
-                raise RuntimeError(
-                    f"database {database_name} does not exist"
-                )
-
-            async with aiofiles.open(
-                    name_to_path(database_name),
-                    mode="w",
-            ) as f:
-                await f.write(
-                    json.dumps(data, indent=indent)
-                )
-
-        finally:
-            self.lock_table[database_name] = False
+        lock = self._get_lock(database_name)
+        async with lock:
+            temp_path = path.with_suffix(".tmp")
+            async with aiofiles.open(temp_path, mode="w", encoding="utf-8") as f:
+                await f.write(json.dumps(data, indent=indent))
+            os.replace(temp_path, path)
+            self._cache[database_name] = (path.stat().st_mtime_ns, data)
 
         return None

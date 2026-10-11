@@ -11,7 +11,7 @@ from swit.api.logger import Logger
 from swit.build_in.get_version import get_swit_version
 from swit.context import set_swit
 from swit.loader.loader import Loader
-from swit.setup.setup_hook_step import _setup_intents,_load_hooker
+from swit.setup.setup_hook_step import _load_hooker, _setup_intents
 
 
 class Swit(commands.AutoShardedBot):
@@ -23,7 +23,7 @@ class Swit(commands.AutoShardedBot):
             cls.INSTANCE = super().__new__(cls)
         return cls.INSTANCE
 
-    __slots__ = ["discord_intents", "intents_config", "loader","lazyconfig", "registry"]
+    __slots__ = ["_synced", "discord_intents", "intents_config", "lazyconfig", "loader", "registry"]
 
     def __init__(
         self,
@@ -33,6 +33,7 @@ class Swit(commands.AutoShardedBot):
         command_prefix: str = "!",
         debug: bool = False,
     ):
+        self._synced = False
         self.config: dict | None = config
 
         self.logger: Logger | None = Logger(debug=debug)
@@ -48,22 +49,27 @@ class Swit(commands.AutoShardedBot):
 
     async def on_ready(self):
         await self.logger.info(f"Logged in as {self.user} (ID: {self.user.id})")
-        await self.logger.info("Start sync slash commands")
-        total_cog = await self.tree.sync()
-        await self.logger.success("Done sync slash commands")
-        await self.logger.success(f"Total cogs: {len(total_cog)}")
-        await self.logger.success(
-            f"Total slash commands: {len(self.tree.get_commands())}"
-        )
 
-        slash_commands = self.tree.get_commands()
+        if not getattr(self, "_synced", False):
+            await self.logger.info("Start sync slash commands")
+            total_cog = await self.tree.sync()
+            self._synced = True
+            await self.logger.success("Done sync slash commands")
+            await self.logger.success(f"Total cogs: {len(total_cog)}")
+            await self.logger.success(
+                f"Total slash commands: {len(self.tree.get_commands())}"
+            )
 
-        await self.logger.info("command map")
-        for command in slash_commands:
-            await self.logger.info(f"/{command.name}")
-            if isinstance(command, commands.Group):
-                for subcommand in command.commands:
-                    await self.logger.info(f"- /{subcommand.name}")
+            slash_commands = self.tree.get_commands()
+            cmd_lines = []
+            for command in slash_commands:
+                cmd_lines.append(f"/{command.name}")
+                if isinstance(command, commands.Group):
+                    for subcommand in command.commands:
+                        cmd_lines.append(f"  - /{subcommand.name}")
+            if cmd_lines:
+                await self.logger.info("Command map:\n" + "\n".join(cmd_lines))
+
         await self.logger.success("Bot ready!")
 
 
